@@ -7,8 +7,9 @@ class ListingDetail {
   final String description;
   final int releaseDate;
   final String runtime;
+  final String background;
 
-  ListingDetail({this.id, this.name, this.image, this.description, this.releaseDate, this.runtime});
+  ListingDetail({this.id, this.name, this.image, this.description, this.releaseDate, this.runtime, this.background});
 
   factory ListingDetail.fromJson(Map<String, dynamic> json){
     return ListingDetail(
@@ -18,6 +19,7 @@ class ListingDetail {
         description: json['Description'],
         releaseDate: json['ReleaseDate'],
         runtime: json['Runtime'],
+        background: json['Background'],
     );
   }
 }

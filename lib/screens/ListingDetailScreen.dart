@@ -22,30 +22,82 @@ class ListingDetailScreen extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
+    return FutureBuilder<ListingDetail>(
+        future: _getDetail(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return _buildStack(snapshot.data);
+          }
+          else if (snapshot.hasError) {
+            throw new Exception();
+          }
+          return Container(
+            child: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+    );
+  }
+
+  Widget _buildStack(ListingDetail listing) {
+    return Stack(
+      children: <Widget>[
+        _buildBackgroundStack(listing),
+        _buildForegroundStack(listing),
+      ],
+    );
+  }
+
+  Widget _buildForegroundStack(ListingDetail listing){
     return Scaffold(
-        appBar: AppBar(
-          title: Text('Listing Detail'),
+      backgroundColor: Colors.transparent,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        title: Text(
+          listing.name,
+          overflow: TextOverflow.ellipsis,
         ),
-        body: FutureBuilder<ListingDetail>(
-            future: _getDetail(),
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                return Text(
-                    snapshot.data.description
-                );
-              }
-              else if (snapshot.hasError) {
-                return Text(
-                    this.id.toString()
-                );
-              }
-              return Container(
-                child: Center(
-                  child: CircularProgressIndicator(),
-                ),
-              );
-            }
-        )
+      ),
+      body: LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) {
+          return Padding(
+            padding: EdgeInsets.only(top: constraints.maxHeight/6, bottom: 8.0, left: 8.0, right: 8.0),
+            child: Container(
+              decoration: BoxDecoration(
+                boxShadow: [
+                  BoxShadow(
+                    spreadRadius: 1,
+                    blurRadius: 10,
+                  )
+                ]
+              ),
+              child: ClipRRect(
+                  borderRadius: new BorderRadius.circular(8.0),
+                  child: FadeInImage.assetNetwork(
+                    image: listing.image,
+                    width: constraints.maxWidth/3,
+                    fit: BoxFit.contain,
+                    placeholder: 'assets/images/placeholder.png',
+                  )
+              ),
+            )
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildBackgroundStack(ListingDetail listing){
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints){
+        return Image.network(
+          listing.background,
+          height: constraints.maxHeight/3,
+          width: constraints.maxWidth,
+          fit: BoxFit.cover,
+        );
+      },
     );
   }
 }

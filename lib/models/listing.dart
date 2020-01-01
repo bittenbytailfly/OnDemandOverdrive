@@ -1,5 +1,3 @@
-import 'package:flutter/cupertino.dart';
-
 class Listing {
   final BigInt id;
   final String name;
