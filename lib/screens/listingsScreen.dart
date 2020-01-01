@@ -1,11 +1,11 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:ondemand_overdrive/listing.dart';
+import 'package:ondemand_overdrive/models/listing.dart';
 import 'package:http/http.dart' as http;
 import 'package:ondemand_overdrive/screens/ListingDetailScreen.dart';
 
-class ListingsPage extends StatefulWidget {
-  ListingsPage({Key key, this.title}) : super(key: key);
+class ListingsScreen extends StatefulWidget {
+  ListingsScreen({Key key, this.title}) : super(key: key);
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -22,7 +22,7 @@ class ListingsPage extends StatefulWidget {
   _ListingPageState createState() => _ListingPageState();
 }
 
-class _ListingPageState extends State<ListingsPage> {
+class _ListingPageState extends State<ListingsScreen> {
   Future<List> _getListings() async {
     final response = await http.get('http://test.1024design.co.uk/api/listings');
 
@@ -123,7 +123,7 @@ class _ListingPageState extends State<ListingsPage> {
       MaterialPageRoute<void>(
         builder: (BuildContext context) {
           return Scaffold(
-            body: ListingDetailPage(id: id),
+            body: ListingDetailScreen(id: id),
           );
         },
       ),

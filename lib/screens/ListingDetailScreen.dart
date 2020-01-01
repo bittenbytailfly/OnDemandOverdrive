@@ -1,12 +1,12 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:ondemand_overdrive/listingDetail.dart';
+import 'package:ondemand_overdrive/models/listingDetail.dart';
 
-class ListingDetailPage extends StatelessWidget{
+class ListingDetailScreen extends StatelessWidget{
   final BigInt id;
 
-  ListingDetailPage({Key key, this.id}) : super(key: key);
+  ListingDetailScreen({Key key, this.id}) : super(key: key);
 
   Future<ListingDetail> _getDetail() async {
     final response = await http.get('http://test.1024design.co.uk/api/listingdetail/' + this.id.toString());

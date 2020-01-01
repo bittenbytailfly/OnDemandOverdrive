@@ -27,7 +27,7 @@ class OnDemandOverdrive extends StatelessWidget {
         brightness: Brightness.dark,
         appBarTheme: AppBarTheme(color: Colors.teal),
       ),
-      home: ListingsPage(title: 'On Demand Overdrive'),
+      home: ListingsScreen(title: 'On Demand Overdrive'),
     );
   }
 }
