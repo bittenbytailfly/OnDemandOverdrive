@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:ondemand_overdrive/models/listing.dart';
 import 'package:http/http.dart' as http;
 import 'package:ondemand_overdrive/screens/ListingDetailScreen.dart';
+import 'package:transparent_image/transparent_image.dart';
 
 class ListingsScreen extends StatefulWidget {
   ListingsScreen({Key key, this.title}) : super(key: key);
@@ -93,12 +94,20 @@ class _ListingPageState extends State<ListingsScreen> {
             Expanded(
               flex: 10,
               child: ClipRRect(
-                  borderRadius: new BorderRadius.circular(8.0),
-                  child: FadeInImage.assetNetwork(
-                    image: listing.image,
-                    fit: BoxFit.contain,
-                    placeholder: 'assets/images/placeholder.png',
-                  )
+                borderRadius: new BorderRadius.circular(8.0),
+                child: Stack(
+                  children: [
+                    Image(
+                      image: AssetImage('assets/images/placeholder.png'),
+                      fit: BoxFit.contain,
+                    ),
+                    FadeInImage(
+                      image: NetworkImage(listing.image),
+                      fit: BoxFit.contain,
+                      placeholder: MemoryImage(kTransparentImage),
+                    ),
+                  ]
+                )
               ),
             ),
             Expanded(
