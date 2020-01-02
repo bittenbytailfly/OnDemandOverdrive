@@ -1,4 +1,4 @@
-
+import 'package:html_unescape/html_unescape.dart';
 
 class ListingDetail {
   final BigInt id;
@@ -12,11 +12,13 @@ class ListingDetail {
   ListingDetail({this.id, this.name, this.image, this.description, this.releaseDate, this.runtime, this.background});
 
   factory ListingDetail.fromJson(Map<String, dynamic> json){
+    var unescape = new HtmlUnescape();
+
     return ListingDetail(
         id: BigInt.parse(json['Id'].toString()),
-        name: json['Title'],
+        name: unescape.convert(json['Title']),
         image: json['Image'],
-        description: json['Description'],
+        description: unescape.convert(json['Description']),
         releaseDate: json['ReleaseDate'],
         runtime: json['Runtime'],
         background: json['Background'],
