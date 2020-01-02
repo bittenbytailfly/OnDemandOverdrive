@@ -28,9 +28,14 @@ dependencies:
   transparent_image: 1.0.0
 
 dev_dependencies:
+  flutter_native_splash: ^0.1.9
   flutter_test:
     sdk: flutter
 
+flutter_native_splash:
+  image: assets/images/placeholder.png
+  color: "42a5f5"
+  fill: true
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
