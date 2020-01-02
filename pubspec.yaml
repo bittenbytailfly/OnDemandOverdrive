@@ -33,9 +33,9 @@ dev_dependencies:
     sdk: flutter
 
 flutter_native_splash:
-  image: assets/images/placeholder.png
+  image: assets/images/logo.png
   color: "42a5f5"
-  fill: true
+  fill: false
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
