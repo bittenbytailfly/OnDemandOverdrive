@@ -50,38 +50,86 @@ class ListingDetailScreen extends StatelessWidget{
   }
 
   Widget _buildForegroundStack(ListingDetail listing){
+    var appBar = AppBar(
+      backgroundColor: Colors.transparent,
+      title: Text(
+        listing.name,
+        overflow: TextOverflow.ellipsis,
+      ),
+    );
+
     return Scaffold(
       backgroundColor: Colors.transparent,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        title: Text(
-          listing.name,
-          overflow: TextOverflow.ellipsis,
-        ),
-      ),
+      appBar: appBar,
       body: LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
           return Padding(
-            padding: EdgeInsets.only(top: constraints.maxHeight/6, bottom: 8.0, left: 8.0, right: 8.0),
-            child: Container(
-              decoration: BoxDecoration(
-                boxShadow: [
-                  BoxShadow(
-                    spreadRadius: 1,
-                    blurRadius: 10,
-                  )
-                ]
-              ),
-              child: ClipRRect(
-                  borderRadius: new BorderRadius.circular(8.0),
-                  child: FadeInImage.assetNetwork(
-                    image: listing.image,
-                    width: constraints.maxWidth/3,
-                    fit: BoxFit.contain,
-                    placeholder: 'assets/images/placeholder.png',
-                  )
-              ),
+            padding: EdgeInsets.only(top: constraints.maxHeight/5 - appBar.preferredSize.height, bottom: 8.0, left: 8.0, right: 8.0),
+            child: Column(
+              children: <Widget>[
+                Container(
+                  height: constraints.maxHeight/4,
+                  child: Row(
+                    children: <Widget>[
+                      Expanded(
+                        flex: 1,
+                        child: Container(
+                          decoration: BoxDecoration(
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black12,
+                                  spreadRadius: 5,
+                                  blurRadius: 5,
+                                )
+                              ]
+                          ),
+                          child: ClipRRect(
+                              borderRadius: new BorderRadius.circular(8.0),
+                              child: FadeInImage.assetNetwork(
+                                image: listing.image,
+                                width: constraints.maxWidth/3,
+                                fit: BoxFit.contain,
+                                placeholder: 'assets/images/placeholder.png',
+                              )
+                          ),
+                        )
+                      ),
+                      Expanded(
+                        flex: 2,
+                        child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              mainAxisSize: MainAxisSize.max,
+                              textBaseline: TextBaseline.alphabetic,
+                              children: <Widget>[
+                                Padding(
+                                  padding: const EdgeInsets.only(bottom: 4.0),
+                                  child: Text(
+                                    listing.name,
+                                    style: TextStyle(fontSize: 18.0),
+                                  ),
+                                ),
+                                Text(
+                                  listing.releaseDate.toString() + " - " + listing.runtime,
+                                ),
+                              ],
+                            ),
+                        )
+                      )
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 16.0),
+                  child: Text(
+                    listing.description,
+                  ),
+                )
+              ],
             )
+
           );
         },
       ),
