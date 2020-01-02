@@ -64,6 +64,7 @@ class _ListingPageState extends State<ListingsScreen> {
               if (snapshot.hasData) {
                 return GridView.builder(
                     itemCount: snapshot.data.length,
+                    padding: EdgeInsets.only(top: 16.0, bottom: 16.0),
                     gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 3,
                       childAspectRatio: 0.7,
