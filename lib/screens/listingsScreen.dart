@@ -64,17 +64,17 @@ class _ListingPageState extends State<ListingsScreen> {
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 return GridView.builder(
-                    itemCount: snapshot.data.length,
-                    padding: EdgeInsets.only(top: 16.0, bottom: 16.0),
-                    gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
-                      childAspectRatio: 0.7,
-                      crossAxisSpacing: 8,
-                      mainAxisSpacing: 8,
-                    ),
-                    itemBuilder: (context, i) {
-                      return _buildListing(snapshot.data[i]);
-                    }
+                  itemCount: snapshot.data.length,
+                  padding: EdgeInsets.only(top: 16.0, bottom: 16.0),
+                  gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    childAspectRatio: 0.7,
+                    crossAxisSpacing: 8,
+                    mainAxisSpacing: 8,
+                  ),
+                  itemBuilder: (context, i) {
+                    return _buildListing(snapshot.data[i]);
+                  }
                 );
               }
               return Container(
@@ -97,14 +97,17 @@ class _ListingPageState extends State<ListingsScreen> {
                 borderRadius: new BorderRadius.circular(8.0),
                 child: Stack(
                   children: [
-                    Image(
-                      image: AssetImage('assets/images/placeholder.png'),
-                      fit: BoxFit.contain,
+                    Padding(
+                      padding: const EdgeInsets.all(1.0),
+                      child: Image(
+                        image: AssetImage('assets/images/placeholder.png'),
+                        fit: BoxFit.contain,
+                      ),
                     ),
                     FadeInImage(
                       image: NetworkImage(listing.image),
                       fit: BoxFit.contain,
-                      placeholder: MemoryImage(kTransparentImage),
+                      placeholder: AssetImage('assets/images/placeholder-trans.png'),
                     ),
                   ]
                 )
