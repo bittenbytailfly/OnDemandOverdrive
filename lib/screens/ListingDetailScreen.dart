@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:ondemand_overdrive/models/listingDetail.dart';
+import 'package:transparent_image/transparent_image.dart';
 
 class ListingDetailScreen extends StatelessWidget{
   final BigInt id;
@@ -136,16 +138,34 @@ class ListingDetailScreen extends StatelessWidget{
     );
   }
 
-  Widget _buildBackgroundStack(ListingDetail listing){
+  Widget _buildBackgroundStack(ListingDetail listing) {
     return LayoutBuilder(
-      builder: (BuildContext context, BoxConstraints constraints){
-        return Image.network(
-          listing.background,
-          height: constraints.maxHeight/3,
-          width: constraints.maxWidth,
-          fit: BoxFit.cover,
-        );
-      },
+        builder: (BuildContext context, BoxConstraints constraints) {
+          return Stack(
+            children: <Widget>[
+              FadeInImage(
+                image: NetworkImage(listing.image),
+                height: constraints.maxHeight / 3,
+                width: constraints.maxWidth,
+                fit: BoxFit.cover,
+                placeholder: MemoryImage(kTransparentImage),
+              ),
+              BackdropFilter(
+                filter: new ImageFilter.blur(sigmaX: 50, sigmaY: 50),
+                child: new Container(
+                  decoration: new BoxDecoration(color: Colors.grey[200].withOpacity(0.1)),
+                ),
+              ),
+              FadeInImage(
+                image: NetworkImage(listing.background),
+                height: constraints.maxHeight / 3,
+                width: constraints.maxWidth,
+                fit: BoxFit.cover,
+                placeholder: MemoryImage(kTransparentImage),
+              ),
+            ]
+          );
+        }
     );
   }
 }
