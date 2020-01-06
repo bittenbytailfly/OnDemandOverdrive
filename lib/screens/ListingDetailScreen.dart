@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:ondemand_overdrive/models/listingDetail.dart';
+import 'package:ondemand_overdrive/models/ListingDetail.dart';
 import 'package:transparent_image/transparent_image.dart';
 
 class ListingDetailScreen extends StatelessWidget{
@@ -123,17 +123,46 @@ class ListingDetailScreen extends StatelessWidget{
                     ],
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 16.0),
-                  child: Text(
-                    listing.description,
-                  ),
-                )
+                _buildTextInfo('', listing.description),
+                _buildTextInfo('Actors', listing.actors),
+                _buildTextInfo('Directed By', listing.director),
+                _buildTextInfo('Production', listing.production),
+                _buildTextInfo('Genre', listing.genre),
               ],
             )
 
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildTextInfo(String title, String detail){
+    return Visibility(
+      visible: detail != null && detail.length > 0,
+      child: Padding(
+        padding: const EdgeInsets.only(top: 16.0),
+        child: Column(
+          children: <Widget>[
+            Visibility(
+              visible: title != null && title.length > 0,
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  title,
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.left,
+                ),
+              ),
+            ),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                detail,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
