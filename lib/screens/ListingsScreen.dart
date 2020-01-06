@@ -24,7 +24,26 @@ class ListingsScreen extends StatefulWidget {
 }
 
 class _ListingPageState extends State<ListingsScreen> {
-  Future<List> _getListings() async {
+
+  Future<List<Listing>> _listingsFuture;
+  Future<List<Listing>> _filteredListings;
+  List<String> _selectedListingTypes;
+
+  @override
+  void initState(){
+    super.initState();
+    _listingsFuture = _getListings();
+    _selectedListingTypes = ['movie','series'];
+    _filterListings();
+  }
+
+  void _filterListings(){
+    setState(() {
+      _filteredListings = _listingsFuture.then((listings) => listings.where((l) => _selectedListingTypes.contains(l.type)).toList());
+    });
+  }
+
+  Future<List<Listing>> _getListings() async {
     final response = await http.get('http://test.1024design.co.uk/api/listings');
 
     if (response.statusCode == 200){
@@ -52,6 +71,42 @@ class _ListingPageState extends State<ListingsScreen> {
         title: Text(widget.title),
       ),
       body: _buildListings(),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            DrawerHeader(
+              child: Text('Apply Filters'),
+            ),
+            CheckboxListTile(
+              title: const Text('Movies'),
+              value: _selectedListingTypes.contains('movie'),
+              onChanged: (bool checked){
+                if (checked){
+                  this._selectedListingTypes.add('movie');
+                }
+                else {
+                  this._selectedListingTypes.remove('movie');
+                }
+                _filterListings();
+              },
+            ),
+            CheckboxListTile(
+              title: const Text('Series'),
+              value: _selectedListingTypes.contains('series'),
+              onChanged: (bool checked){
+                if (checked){
+                  this._selectedListingTypes.add('series');
+                }
+                else {
+                  this._selectedListingTypes.remove('series');
+                }
+                _filterListings();
+              },
+            ),
+          ]
+        )
+      ),
     );
   }
 
@@ -60,7 +115,7 @@ class _ListingPageState extends State<ListingsScreen> {
     return Container(
         padding: const EdgeInsets.only(left: 8, right: 8),
         child: FutureBuilder(
-            future: _getListings(),
+            future: _filteredListings,
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 return GridView.builder(
