@@ -11,7 +11,7 @@ class ListingDetailScreen extends StatelessWidget{
   ListingDetailScreen({Key key, this.id}) : super(key: key);
 
   Future<ListingDetail> _getDetail() async {
-    final response = await http.get('http://test.1024design.co.uk/api/listingdetail/' + this.id.toString());
+    final response = await http.get('http://test.1024design.co.uk/api/listingdetail/get/' + this.id.toString());
 
     if (response.statusCode == 200){
       var data = jsonDecode(response.body);

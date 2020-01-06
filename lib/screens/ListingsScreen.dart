@@ -3,19 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:ondemand_overdrive/models/Listing.dart';
 import 'package:http/http.dart' as http;
 import 'package:ondemand_overdrive/screens/ListingDetailScreen.dart';
-import 'package:transparent_image/transparent_image.dart';
 
 class ListingsScreen extends StatefulWidget {
   ListingsScreen({Key key, this.title}) : super(key: key);
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
 
   final String title;
 
@@ -25,22 +15,48 @@ class ListingsScreen extends StatefulWidget {
 
 class _ListingPageState extends State<ListingsScreen> {
 
-  Future<List<Listing>> _listingsFuture;
-  Future<List<Listing>> _filteredListings;
+  Future _listingsFuture;
+  Future _filteredListings;
+  Future _genres;
   List<String> _selectedListingTypes;
+  List<String> _selectedGenres;
 
   @override
   void initState(){
     super.initState();
-    _listingsFuture = _getListings();
-    _selectedListingTypes = ['movie','series'];
+    this._listingsFuture = _getListings();
+    this._selectedListingTypes = ['movie','series'];
+    this._selectedGenres = List<String>();
+    this._genres = _getGenres();
+    // pre-populate all the genre tick boxes
+    this._genres.then((genres) => this._selectedGenres.addAll(genres));
+
     _filterListings();
   }
 
   void _filterListings(){
     setState(() {
-      _filteredListings = _listingsFuture.then((listings) => listings.where((l) => _selectedListingTypes.contains(l.type)).toList());
+      var selectedGenreSet = Set<String>();
+      selectedGenreSet.addAll(_selectedGenres);
+      _filteredListings = _listingsFuture.then(
+              (listings) => listings.where(
+                      (l) =>
+                      (_selectedListingTypes.length == 0 || _selectedListingTypes.contains(l.type)) &&
+                              (selectedGenreSet.length == 0 || selectedGenreSet.intersection(l.genres.toSet()).length > 0)
+              ).toList());
     });
+  }
+
+  Future<List<String>> _getGenres() async {
+    final response = await http.get('http://test.1024design.co.uk/api/listings/genres');
+
+    if (response.statusCode == 200){
+      var data = jsonDecode(response.body);
+      return data.cast<String>();
+    }
+    else {
+      throw Exception();
+    }
   }
 
   Future<List<Listing>> _getListings() async {
@@ -58,54 +74,155 @@ class _ListingPageState extends State<ListingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
       body: _buildListings(),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            DrawerHeader(
-              child: Text('Apply Filters'),
+      drawer: _buildDrawer(),
+    );
+  }
+
+  Widget _buildDrawer(){
+    return Drawer(
+      child: FutureBuilder(
+        future: _genres,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return CustomScrollView(
+                slivers: <Widget>[
+                  SliverList(
+                      delegate: SliverChildListDelegate([
+                        DrawerHeader(
+                          child: Align(
+                            alignment: Alignment.bottomLeft,
+                            child: Text(
+                              'Filter Results',
+                              style: TextStyle(fontSize: 18.0),
+                            ),
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.teal,
+                          ),
+                        ),
+                        CheckboxListTile(
+                          title: const Text(
+                            'Listing Type',
+                            style: TextStyle(
+                              fontSize: 24.0,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.teal,
+                            ),
+                          ),
+                          value: _selectedListingTypes.length > 0,
+                          onChanged: (bool checked) {
+                            if (checked) {
+                              setState(() {
+                                this._selectedListingTypes.add('movie');
+                                this._selectedListingTypes.add('series');
+                              });
+                            }
+                            else {
+                              setState(() {
+                                this._selectedListingTypes.removeRange(0, this._selectedListingTypes.length);
+                              });
+                            }
+                            _filterListings();
+                          },
+                        ),
+                        CheckboxListTile(
+                          title: const Text(
+                            'Movies',
+                            style: TextStyle(fontSize: 18.0),
+                          ),
+                          value: _selectedListingTypes.contains('movie'),
+                          onChanged: (bool checked) {
+                            if (checked) {
+                              this._selectedListingTypes.add('movie');
+                            }
+                            else {
+                              this._selectedListingTypes.remove('movie');
+                            }
+                            _filterListings();
+                          },
+                        ),
+                        CheckboxListTile(
+                          title: const Text(
+                            'Series',
+                            style: TextStyle(fontSize: 18.0),
+                          ),
+                          value: _selectedListingTypes.contains('series'),
+                          onChanged: (bool checked) {
+                            if (checked) {
+                              this._selectedListingTypes.add('series');
+                            }
+                            else {
+                              this._selectedListingTypes.remove('series');
+                            }
+                            _filterListings();
+                          },
+                        ),
+                        Divider(),
+                        CheckboxListTile(
+                          title: const Text(
+                            'Genre',
+                            style: TextStyle(
+                              fontSize: 24.0,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.teal,
+                            ),
+                          ),
+                          value: _selectedGenres.length > 0,
+                          onChanged: (bool checked) {
+                            if (checked) {
+                              setState(() {
+                                this._genres.then((genres) => this._selectedGenres.addAll(genres));
+                              });
+                            }
+                            else {
+                              setState(() {
+                                this._selectedGenres.removeRange(0, this._selectedGenres.length);
+                              });
+                            }
+                            _filterListings();
+                          },
+                        ),
+                      ])
+                  ),
+                  SliverList(
+                    delegate: SliverChildBuilderDelegate((BuildContext context,
+                        int i) {
+                      return CheckboxListTile(
+                        title: Text(
+                          snapshot.data[i],
+                          style: TextStyle(fontSize: 18.0),
+                        ),
+                        value: _selectedGenres.contains(snapshot.data[i]),
+                        onChanged: (bool checked) {
+                          if (checked) {
+                            this._selectedGenres.add(snapshot.data[i]);
+                          }
+                          else {
+                            this._selectedGenres.remove(snapshot.data[i]);
+                          }
+                          _filterListings();
+                        },
+                      );
+                    }
+                    ,childCount: snapshot.data.length),
+                  )
+                ]
+            );
+          }
+          else if (snapshot.hasError) {
+            throw new Exception();
+          }
+          return Container(
+            child: Center(
+              child: CircularProgressIndicator(),
             ),
-            CheckboxListTile(
-              title: const Text('Movies'),
-              value: _selectedListingTypes.contains('movie'),
-              onChanged: (bool checked){
-                if (checked){
-                  this._selectedListingTypes.add('movie');
-                }
-                else {
-                  this._selectedListingTypes.remove('movie');
-                }
-                _filterListings();
-              },
-            ),
-            CheckboxListTile(
-              title: const Text('Series'),
-              value: _selectedListingTypes.contains('series'),
-              onChanged: (bool checked){
-                if (checked){
-                  this._selectedListingTypes.add('series');
-                }
-                else {
-                  this._selectedListingTypes.remove('series');
-                }
-                _filterListings();
-              },
-            ),
-          ]
-        )
+          );
+        }
       ),
     );
   }
@@ -115,29 +232,29 @@ class _ListingPageState extends State<ListingsScreen> {
     return Container(
         padding: const EdgeInsets.only(left: 8, right: 8),
         child: FutureBuilder(
-            future: _filteredListings,
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                return GridView.builder(
-                  itemCount: snapshot.data.length,
-                  padding: EdgeInsets.only(top: 16.0, bottom: 16.0),
-                  gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    childAspectRatio: 0.7,
-                    crossAxisSpacing: 8,
-                    mainAxisSpacing: 8,
-                  ),
-                  itemBuilder: (context, i) {
-                    return _buildListing(snapshot.data[i]);
-                  }
-                );
-              }
-              return Container(
-                child: Center(
-                  child: CircularProgressIndicator(),
+          future: _filteredListings,
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              return GridView.builder(
+                itemCount: snapshot.data.length,
+                padding: EdgeInsets.only(top: 16.0, bottom: 16.0),
+                gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                  childAspectRatio: 0.7,
+                  crossAxisSpacing: 8,
+                  mainAxisSpacing: 8,
                 ),
+                itemBuilder: (context, i) {
+                  return _buildListing(snapshot.data[i]);
+                }
               );
             }
+            return Container(
+              child: Center(
+                child: CircularProgressIndicator(),
+              ),
+            );
+          }
         )
     );
   }
