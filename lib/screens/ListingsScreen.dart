@@ -28,7 +28,8 @@ class _ListingPageState extends State<ListingsScreen> {
 
     final listingsService = new ListingsService();
 
-    Future.wait([listingsService.getGenres(), listingsService.getListings()]).then((futures) {
+    Future.wait([listingsService.getGenres(), listingsService.getListings()])
+        .then((futures) {
       this._genres = futures[0].cast<String>();
       this._listings = futures[1].cast<Listing>();
 
@@ -51,9 +52,12 @@ class _ListingPageState extends State<ListingsScreen> {
 
   Future _filterListings() async {
     var selectedGenreSet = Set<String>();
-    selectedGenreSet.addAll(_genreFilter.where((f) => f.isSelected).map((f) => f.name));
+    selectedGenreSet
+        .addAll(_genreFilter.where((f) => f.isSelected).map((f) => f.name));
     List<Listing> filtered = new List<Listing>();
-    filtered.addAll(_listings.where((l) => selectedGenreSet.intersection(l.genres.toSet()).length > 0 && this._listingTypeFilter.isActive(l.type)));
+    filtered.addAll(_listings.where((l) =>
+        selectedGenreSet.intersection(l.genres.toSet()).length > 0 &&
+        this._listingTypeFilter.isActive(l.type)));
     return filtered;
   }
 
@@ -135,9 +139,7 @@ class _ListingPageState extends State<ListingsScreen> {
 
   Widget _buildDividingSliver() {
     return SliverList(
-      delegate: SliverChildListDelegate([
-        Divider()
-      ]),
+      delegate: SliverChildListDelegate([Divider()]),
     );
   }
 
