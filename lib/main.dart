@@ -8,7 +8,7 @@ class OnDemandOverdrive extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'On Demand Overdrive',
+      title: 'On-Demand Overdrive',
       theme: ThemeData(
         // This is the theme of your application.
         //

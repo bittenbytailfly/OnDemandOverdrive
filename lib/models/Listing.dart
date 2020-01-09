@@ -5,8 +5,9 @@ class Listing {
   final String name;
   final String image;
   final String type;
+  final List<String> genres;
 
-  Listing({this.id, this.name, this.image, this.type});
+  Listing({this.id, this.name, this.image, this.type, this.genres});
 
   factory Listing.fromJson(Map<String, dynamic> json){
     var unescape = new HtmlUnescape();
@@ -15,6 +16,7 @@ class Listing {
       name: unescape.convert(json['title']),
       image: json['image'],
       type: json['type'],
+      genres: List.from(json['genres'])
     );
   }
 }

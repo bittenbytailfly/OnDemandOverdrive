@@ -2,20 +2,11 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:ondemand_overdrive/models/Listing.dart';
 import 'package:http/http.dart' as http;
+import 'package:ondemand_overdrive/models/FilterList.dart';
 import 'package:ondemand_overdrive/screens/ListingDetailScreen.dart';
-import 'package:transparent_image/transparent_image.dart';
 
 class ListingsScreen extends StatefulWidget {
   ListingsScreen({Key key, this.title}) : super(key: key);
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
 
   final String title;
 
@@ -24,109 +15,279 @@ class ListingsScreen extends StatefulWidget {
 }
 
 class _ListingPageState extends State<ListingsScreen> {
-  Future<List> _getListings() async {
-    final response = await http.get('http://test.1024design.co.uk/api/listings');
+  List<Listing> _listings;
+  Future _filteredListings;
+  List<String> _genres;
+  FilterList _listingTypeFilter;
+  FilterList _genreFilter;
 
-    if (response.statusCode == 200){
+  @override
+  void initState() {
+    super.initState();
+
+    Future.wait([_getGenres(), _getListings()]).then((futures) {
+      this._genres = futures[0].cast<String>();
+      this._listings = futures[1].cast<Listing>();
+
+      // pre-populate all the filters
+      this._listingTypeFilter = new FilterList(['movie', 'series']);
+      this._genreFilter = new FilterList(_genres);
+
+      this._genreFilter.addListener(_updateListings);
+      this._listingTypeFilter.addListener(_updateListings);
+
+      _filteredListings = _filterListings();
+    });
+  }
+
+  void _updateListings() {
+    setState(() {
+      _filteredListings = _filterListings();
+    });
+  }
+
+  Future _filterListings() async {
+    var selectedGenreSet = Set<String>();
+    selectedGenreSet.addAll(_genreFilter.where((f) => f.isSelected).map((f) => f.name));
+    List<Listing> filtered = new List<Listing>();
+    filtered.addAll(_listings.where((l) => selectedGenreSet.intersection(l.genres.toSet()).length > 0 && this._listingTypeFilter.isActive(l.type)));
+    return filtered;
+  }
+
+  Future _getGenres() async {
+    final response =
+        await http.get('http://test.1024design.co.uk/api/listings/genres');
+
+    if (response.statusCode == 200) {
+      var data = jsonDecode(response.body);
+      return data.cast<String>();
+    } else {
+      throw Exception();
+    }
+  }
+
+  Future _getListings() async {
+    final response =
+        await http.get('http://test.1024design.co.uk/api/listings');
+
+    if (response.statusCode == 200) {
       var data = jsonDecode(response.body);
       var listings = data as List;
       return listings.map<Listing>((json) => Listing.fromJson(json)).toList();
-    }
-    else {
+    } else {
       throw Exception();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
       body: _buildListings(),
+      drawer: _buildDrawer(),
     );
   }
 
-  Widget _buildListings(){
+  Widget _buildDrawer() {
+    return Drawer(
+      child: FutureBuilder(
+          future: _filteredListings,
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              const largerFontStyle = TextStyle(fontSize: 18.0);
+              return CustomScrollView(slivers: <Widget>[
+                _buildDrawerSliver(largerFontStyle),
+                _buildListingTypeFilterHeaderSliver(),
+                _buildListingTypeFilterSliver(largerFontStyle),
+                _buildDividingSliver(),
+                _buildGenreFilterHeaderSliver(),
+                _buildGenreFilterSliver(largerFontStyle),
+              ]);
+            } else if (snapshot.hasError) {
+              throw new Exception();
+            }
+            return _buildLoadingIndicator();
+          }),
+    );
+  }
 
+  Widget _buildListingTypeFilterHeaderSliver() {
+    return SliverList(
+      delegate: SliverChildListDelegate([
+        CheckboxListTile(
+          title: const Text(
+            'Listing Type',
+            style: TextStyle(
+              fontSize: 24.0,
+              fontWeight: FontWeight.bold,
+              color: Colors.teal,
+            ),
+          ),
+          value: _listingTypeFilter.hasSelectedItems(),
+          onChanged: (bool checked) {
+            this._listingTypeFilter.toggleAll(checked);
+          },
+        )
+      ]),
+    );
+  }
+
+  Widget _buildGenreFilterHeaderSliver() {
+    return SliverList(
+      delegate: SliverChildListDelegate([
+        CheckboxListTile(
+          title: const Text(
+            'Genre',
+            style: TextStyle(
+              fontSize: 24.0,
+              fontWeight: FontWeight.bold,
+              color: Colors.teal,
+            ),
+          ),
+          value: _genreFilter.hasSelectedItems(),
+          onChanged: (bool checked) {
+            this._genreFilter.toggleAll(checked);
+          },
+        )
+      ]),
+    );
+  }
+
+  Widget _buildDividingSliver() {
+    return SliverList(
+      delegate: SliverChildListDelegate([
+        Divider()
+      ]),
+    );
+  }
+
+  Widget _buildDrawerSliver(TextStyle largerFontStyle) {
+    return SliverList(
+      delegate: SliverChildListDelegate([
+        DrawerHeader(
+          child: Align(
+            alignment: Alignment.bottomLeft,
+            child: Text(
+              'Filter Results',
+              style: largerFontStyle,
+            ),
+          ),
+          decoration: BoxDecoration(
+            color: Colors.teal,
+          ),
+        )
+      ]),
+    );
+  }
+
+  Widget _buildGenreFilterSliver(TextStyle largerFontStyle) {
+    return SliverList(
+      delegate: SliverChildBuilderDelegate((BuildContext context, int i) {
+        return CheckboxListTile(
+          title: Text(
+            _genreFilter[i].name,
+            style: largerFontStyle,
+          ),
+          value: _genreFilter[i].isSelected,
+          onChanged: (bool checked) {
+            this._genreFilter[i].toggle(checked);
+          },
+        );
+      }, childCount: _genreFilter.length),
+    );
+  }
+
+  Widget _buildListingTypeFilterSliver(TextStyle largerFontStyle) {
+    return SliverList(
+      delegate: SliverChildBuilderDelegate((BuildContext context, int i) {
+        return CheckboxListTile(
+          title: Text(
+            _listingTypeFilter[i].name,
+            style: largerFontStyle,
+          ),
+          value: _listingTypeFilter[i].isSelected,
+          onChanged: (bool checked) {
+            this._listingTypeFilter[i].toggle(checked);
+          },
+        );
+      }, childCount: _listingTypeFilter.length),
+    );
+  }
+
+  Widget _buildListings() {
     return Container(
         padding: const EdgeInsets.only(left: 8, right: 8),
         child: FutureBuilder(
-            future: _getListings(),
+            future: _filteredListings,
             builder: (context, snapshot) {
               if (snapshot.hasData) {
-                return GridView.builder(
-                  itemCount: snapshot.data.length,
-                  padding: EdgeInsets.only(top: 16.0, bottom: 16.0),
-                  gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    childAspectRatio: 0.7,
-                    crossAxisSpacing: 8,
-                    mainAxisSpacing: 8,
-                  ),
-                  itemBuilder: (context, i) {
-                    return _buildListing(snapshot.data[i]);
-                  }
-                );
+                return snapshot.data.length > 0
+                    ? GridView.builder(
+                        itemCount: snapshot.data.length,
+                        padding: EdgeInsets.only(top: 16.0, bottom: 16.0),
+                        gridDelegate:
+                            new SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 3,
+                          childAspectRatio: 0.7,
+                          crossAxisSpacing: 8,
+                          mainAxisSpacing: 8,
+                        ),
+                        itemBuilder: (context, i) {
+                          return _buildListing(snapshot.data[i]);
+                        })
+                    : Container(
+                        child: Center(
+                            child: Text('No results matching your search')));
               }
-              return Container(
-                child: Center(
-                  child: CircularProgressIndicator(),
-                ),
-              );
-            }
-        )
+              return _buildLoadingIndicator();
+            }));
+  }
+
+  Widget _buildLoadingIndicator() {
+    return Container(
+      child: Center(
+        child: CircularProgressIndicator(),
+      ),
     );
   }
 
-  Widget _buildListing(Listing listing){
+  Widget _buildListing(Listing listing) {
     return GestureDetector(
-      child: Column(
-          children: [
-            Expanded(
-              flex: 10,
-              child: ClipRRect(
-                borderRadius: new BorderRadius.circular(8.0),
-                child: Stack(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(1.0),
-                      child: Image(
-                        image: AssetImage('assets/images/placeholder.png'),
-                        fit: BoxFit.contain,
-                      ),
-                    ),
-                    FadeInImage(
-                      image: NetworkImage(listing.image),
-                      fit: BoxFit.contain,
-                      placeholder: AssetImage('assets/images/placeholder-trans.png'),
-                    ),
-                  ]
-                )
-              ),
-            ),
-            Expanded(
-                flex: 2,
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    listing.name,
-                    textAlign: TextAlign.left,
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
+      child: Column(children: [
+        Expanded(
+          flex: 10,
+          child: ClipRRect(
+              borderRadius: new BorderRadius.circular(8.0),
+              child: Stack(children: [
+                Padding(
+                  padding: const EdgeInsets.all(1.0),
+                  child: Image(
+                    image: AssetImage('assets/images/placeholder.png'),
+                    fit: BoxFit.contain,
                   ),
-                )
-            ),
-          ]
-      ),
+                ),
+                FadeInImage(
+                  image: NetworkImage(listing.image),
+                  fit: BoxFit.contain,
+                  placeholder:
+                      AssetImage('assets/images/placeholder-trans.png'),
+                ),
+              ])),
+        ),
+        Expanded(
+            flex: 2,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                listing.name,
+                textAlign: TextAlign.left,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
+            )),
+      ]),
       onTap: () => _pushListingDetailPage(listing.id),
     );
   }
