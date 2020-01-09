@@ -1,31 +1,20 @@
 import 'dart:convert';
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:ondemand_overdrive/models/ListingDetail.dart';
+import 'package:ondemand_overdrive/services/ListingsService.dart';
 import 'package:transparent_image/transparent_image.dart';
 
 class ListingDetailScreen extends StatelessWidget{
   final BigInt id;
+  final _listingsService = new ListingsService();
 
   ListingDetailScreen({Key key, this.id}) : super(key: key);
-
-  Future<ListingDetail> _getDetail() async {
-    final response = await http.get('http://test.1024design.co.uk/api/listingdetail/get/' + this.id.toString());
-
-    if (response.statusCode == 200){
-      var data = jsonDecode(response.body);
-      return ListingDetail.fromJson(data);
-    }
-    else {
-      throw Exception();
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<ListingDetail>(
-        future: _getDetail(),
+        future: this._listingsService.getDetail(this.id),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             return _buildStack(snapshot.data);

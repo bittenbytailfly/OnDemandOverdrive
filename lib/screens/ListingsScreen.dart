@@ -4,6 +4,7 @@ import 'package:ondemand_overdrive/models/Listing.dart';
 import 'package:http/http.dart' as http;
 import 'package:ondemand_overdrive/models/FilterList.dart';
 import 'package:ondemand_overdrive/screens/ListingDetailScreen.dart';
+import 'package:ondemand_overdrive/services/ListingsService.dart';
 
 class ListingsScreen extends StatefulWidget {
   ListingsScreen({Key key, this.title}) : super(key: key);
@@ -25,7 +26,9 @@ class _ListingPageState extends State<ListingsScreen> {
   void initState() {
     super.initState();
 
-    Future.wait([_getGenres(), _getListings()]).then((futures) {
+    final listingsService = new ListingsService();
+
+    Future.wait([listingsService.getGenres(), listingsService.getListings()]).then((futures) {
       this._genres = futures[0].cast<String>();
       this._listings = futures[1].cast<Listing>();
 
@@ -52,31 +55,6 @@ class _ListingPageState extends State<ListingsScreen> {
     List<Listing> filtered = new List<Listing>();
     filtered.addAll(_listings.where((l) => selectedGenreSet.intersection(l.genres.toSet()).length > 0 && this._listingTypeFilter.isActive(l.type)));
     return filtered;
-  }
-
-  Future _getGenres() async {
-    final response =
-        await http.get('http://test.1024design.co.uk/api/listings/genres');
-
-    if (response.statusCode == 200) {
-      var data = jsonDecode(response.body);
-      return data.cast<String>();
-    } else {
-      throw Exception();
-    }
-  }
-
-  Future _getListings() async {
-    final response =
-        await http.get('http://test.1024design.co.uk/api/listings');
-
-    if (response.statusCode == 200) {
-      var data = jsonDecode(response.body);
-      var listings = data as List;
-      return listings.map<Listing>((json) => Listing.fromJson(json)).toList();
-    } else {
-      throw Exception();
-    }
   }
 
   @override
