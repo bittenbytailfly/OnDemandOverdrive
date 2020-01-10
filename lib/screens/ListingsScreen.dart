@@ -40,7 +40,7 @@ class _ListingPageState extends State<ListingsScreen> {
       this._genreFilter.addListener(_updateListings);
       this._listingTypeFilter.addListener(_updateListings);
 
-      _filteredListings = _filterListings();
+      this._updateListings();
     });
   }
 
