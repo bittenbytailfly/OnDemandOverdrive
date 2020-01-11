@@ -259,21 +259,26 @@ class _ListingPageState extends State<ListingsScreen> {
           flex: 10,
           child: ClipRRect(
               borderRadius: new BorderRadius.circular(8.0),
-              child: Stack(children: [
-                Padding(
-                  padding: const EdgeInsets.all(1.0),
-                  child: Image(
-                    image: AssetImage('assets/images/placeholder.png'),
-                    fit: BoxFit.contain,
+              child: AspectRatio(
+                aspectRatio: 0.71,
+                child: Stack(children: [
+                  Padding(
+                    padding: const EdgeInsets.all(2.0),
+                    child: Image(
+                      image: AssetImage('assets/images/placeholder.png'),
+                      fit: BoxFit.contain,
+                    ),
                   ),
-                ),
-                FadeInImage(
-                  image: NetworkImage(listing.image),
-                  fit: BoxFit.contain,
-                  placeholder:
-                      AssetImage('assets/images/placeholder-trans.png'),
-                ),
-              ])),
+                  Center(
+                    child: FadeInImage(
+                      image: NetworkImage(listing.image),
+                      fit: BoxFit.contain,
+                      placeholder:
+                          AssetImage('assets/images/placeholder-trans.png'),
+                    ),
+                  ),
+                ]),
+              )),
         ),
         Expanded(
             flex: 2,

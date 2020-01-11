@@ -107,6 +107,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
         children: <Widget>[
           Container(
             height: 200.0,
+            width: 142.0,
             child: _buildCoverArt(listing),
           ),
           Expanded(
