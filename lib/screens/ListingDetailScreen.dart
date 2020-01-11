@@ -6,21 +6,54 @@ import 'package:ondemand_overdrive/models/ListingDetail.dart';
 import 'package:ondemand_overdrive/services/ListingsService.dart';
 import 'package:transparent_image/transparent_image.dart';
 
-class ListingDetailScreen extends StatelessWidget {
+class ListingDetailScreen extends StatefulWidget {
   final BigInt id;
-  final _listingsService = new ListingsService();
 
   ListingDetailScreen({Key key, this.id}) : super(key: key);
 
   @override
+  _ListingDetailScreenState createState() => _ListingDetailScreenState();
+}
+
+class _ListingDetailScreenState extends State<ListingDetailScreen> {
+  final _listingsService = new ListingsService();
+  Future _listingDetail;
+
+  @override
+  void initState(){
+    super.initState();
+
+    _getListingDetail();
+  }
+
+  void _getListingDetail() {
+    setState(() {
+      _listingDetail = this._listingsService.getDetail(widget.id);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return FutureBuilder<ListingDetail>(
-        future: this._listingsService.getDetail(this.id),
+        future: this._listingDetail,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             return _buildDetailScreen(snapshot.data, context);
-          } else if (snapshot.hasError) {
-            throw new Exception();
+          }
+          else if (snapshot.hasError) {
+            return Container(
+              alignment: Alignment.center,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('Unable to load data'),
+                  RaisedButton(
+                    onPressed: () => _getListingDetail(),
+                    child: Text('Retry'),
+                  )
+                ],
+              ),
+            );
           }
           return Container(
             child: Center(

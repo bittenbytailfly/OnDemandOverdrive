@@ -1,7 +1,5 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:ondemand_overdrive/models/Listing.dart';
-import 'package:http/http.dart' as http;
 import 'package:ondemand_overdrive/models/FilterList.dart';
 import 'package:ondemand_overdrive/screens/ListingDetailScreen.dart';
 import 'package:ondemand_overdrive/services/ListingsService.dart';
