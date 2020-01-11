@@ -208,29 +208,40 @@ class _ListingPageState extends State<ListingsScreen> {
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 return snapshot.data.length > 0
-                    ? GridView.builder(
-                        itemCount: snapshot.data.length,
-                        padding: EdgeInsets.only(top: 16.0, bottom: 16.0),
-                        gridDelegate:
-                            new SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 3,
-                          childAspectRatio: 0.7,
-                          crossAxisSpacing: 8,
-                          mainAxisSpacing: 8,
-                        ),
-                        itemBuilder: (context, i) {
-                          return _buildListing(snapshot.data[i]);
-                        })
-                    : Container(
-                        child: Center(
-                            child: Text('No results matching your search')));
-              } else if (snapshot.hasError || snapshot.connectionState == ConnectionState.none) {
+                  ? _buildResultWidget(snapshot)
+                  : _buildNoResultsWidget();
+              } else if (snapshot.hasError ||
+                  snapshot.connectionState == ConnectionState.none) {
                 return NoConnectionNotification(
                   onRefresh: () => _getListings(),
                 );
               }
               return _buildLoadingIndicator();
             }));
+  }
+
+  Widget _buildResultWidget(AsyncSnapshot snapshot) {
+    return OrientationBuilder(
+      builder: (context, orientation){
+        return GridView.builder(
+            itemCount: snapshot.data.length,
+            padding: EdgeInsets.only(top: 16.0, bottom: 16.0),
+            gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: orientation == Orientation.landscape ? 5 : 3,
+              childAspectRatio: 0.7,
+              crossAxisSpacing: 8,
+              mainAxisSpacing: 8,
+            ),
+            itemBuilder: (context, i) {
+              return _buildListing(snapshot.data[i]);
+            });
+      },
+    );
+  }
+
+  Widget _buildNoResultsWidget() {
+    return Container(
+        child: Center(child: Text('No results matching your search')));
   }
 
   Widget _buildLoadingIndicator() {
