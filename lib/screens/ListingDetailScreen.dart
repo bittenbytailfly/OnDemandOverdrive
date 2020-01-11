@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:ondemand_overdrive/models/ListingDetail.dart';
 import 'package:ondemand_overdrive/services/ListingsService.dart';
+import 'package:ondemand_overdrive/widgets/NoConnectionNotification.dart';
 import 'package:transparent_image/transparent_image.dart';
 
 class ListingDetailScreen extends StatefulWidget {
@@ -41,18 +42,8 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
             return _buildDetailScreen(snapshot.data, context);
           }
           else if (snapshot.hasError) {
-            return Container(
-              alignment: Alignment.center,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text('Unable to load data'),
-                  RaisedButton(
-                    onPressed: () => _getListingDetail(),
-                    child: Text('Retry'),
-                  )
-                ],
-              ),
+            return NoConnectionNotification(
+              onRefresh: () => _getListingDetail(),
             );
           }
           return Container(
