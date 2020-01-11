@@ -184,7 +184,8 @@ class _ListingPageState extends State<ListingsScreen> {
   Widget _buildListingTypeFilterSliver(TextStyle largerFontStyle) {
     return SliverList(
       delegate: SliverChildBuilderDelegate((BuildContext context, int i) {
-        var label = _listingTypeFilter[i].name[0].toUpperCase() + _listingTypeFilter[i].name.substring(1);
+        var label = _listingTypeFilter[i].name[0].toUpperCase() +
+            _listingTypeFilter[i].name.substring(1);
         return CheckboxListTile(
           title: Text(
             label,
@@ -223,8 +224,7 @@ class _ListingPageState extends State<ListingsScreen> {
                     : Container(
                         child: Center(
                             child: Text('No results matching your search')));
-              }
-              else if (snapshot.error){
+              } else if (snapshot.hasError || snapshot.connectionState == ConnectionState.none) {
                 return NoConnectionNotification(
                   onRefresh: () => _getListings(),
                 );

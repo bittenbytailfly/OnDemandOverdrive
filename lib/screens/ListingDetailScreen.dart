@@ -41,7 +41,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
           if (snapshot.hasData) {
             return _buildDetailScreen(snapshot.data, context);
           }
-          else if (snapshot.hasError) {
+          else if (snapshot.hasError || snapshot.connectionState == ConnectionState.none) {
             return NoConnectionNotification(
               onRefresh: () => _getListingDetail(),
             );
