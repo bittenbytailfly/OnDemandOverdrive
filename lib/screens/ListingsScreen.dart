@@ -46,7 +46,7 @@ class _ListingPageState extends State<ListingsScreen> {
     });
   }
 
-  void _updateListings() {
+  Future _updateListings() async {
     setState(() {
       _filteredListings = _filterListings();
     });
@@ -201,28 +201,32 @@ class _ListingPageState extends State<ListingsScreen> {
   }
 
   Widget _buildListings() {
-    return Container(
-        padding: const EdgeInsets.only(left: 8, right: 8),
-        child: FutureBuilder(
-            future: _filteredListings,
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                return snapshot.data.length > 0
-                  ? _buildResultWidget(snapshot)
-                  : _buildNoResultsWidget();
-              } else if (snapshot.hasError ||
-                  snapshot.connectionState == ConnectionState.none) {
-                return NoConnectionNotification(
-                  onRefresh: () => _getListings(),
-                );
-              }
-              return _buildLoadingIndicator();
-            }));
+    return RefreshIndicator(
+      onRefresh: _updateListings,
+      displacement: 20.0,
+      child: Container(
+          padding: const EdgeInsets.only(left: 8, right: 8),
+          child: FutureBuilder(
+              future: _filteredListings,
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return snapshot.data.length > 0
+                      ? _buildResultWidget(snapshot)
+                      : _buildNoResultsWidget();
+                } else if (snapshot.hasError ||
+                    snapshot.connectionState == ConnectionState.none) {
+                  return NoConnectionNotification(
+                    onRefresh: () => _getListings(),
+                  );
+                }
+                return _buildLoadingIndicator();
+              })),
+    );
   }
 
   Widget _buildResultWidget(AsyncSnapshot snapshot) {
     return OrientationBuilder(
-      builder: (context, orientation){
+      builder: (context, orientation) {
         return GridView.builder(
             itemCount: snapshot.data.length,
             padding: EdgeInsets.only(top: 16.0, bottom: 16.0),
