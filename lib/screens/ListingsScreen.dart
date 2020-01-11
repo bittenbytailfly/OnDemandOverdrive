@@ -1,10 +1,9 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:ondemand_overdrive/models/Listing.dart';
-import 'package:http/http.dart' as http;
 import 'package:ondemand_overdrive/models/FilterList.dart';
 import 'package:ondemand_overdrive/screens/ListingDetailScreen.dart';
 import 'package:ondemand_overdrive/services/ListingsService.dart';
+import 'package:ondemand_overdrive/widgets/NoConnectionNotification.dart';
 
 class ListingsScreen extends StatefulWidget {
   ListingsScreen({Key key, this.title}) : super(key: key);
@@ -21,13 +20,16 @@ class _ListingPageState extends State<ListingsScreen> {
   List<String> _genres;
   FilterList _listingTypeFilter;
   FilterList _genreFilter;
+  final listingsService = new ListingsService();
 
   @override
   void initState() {
     super.initState();
 
-    final listingsService = new ListingsService();
+    _getListings();
+  }
 
+  void _getListings() {
     Future.wait([listingsService.getGenres(), listingsService.getListings()])
         .then((futures) {
       this._genres = futures[0].cast<String>();
@@ -182,9 +184,11 @@ class _ListingPageState extends State<ListingsScreen> {
   Widget _buildListingTypeFilterSliver(TextStyle largerFontStyle) {
     return SliverList(
       delegate: SliverChildBuilderDelegate((BuildContext context, int i) {
+        var label = _listingTypeFilter[i].name[0].toUpperCase() +
+            _listingTypeFilter[i].name.substring(1);
         return CheckboxListTile(
           title: Text(
-            _listingTypeFilter[i].name,
+            label,
             style: largerFontStyle,
           ),
           value: _listingTypeFilter[i].isSelected,
@@ -220,6 +224,10 @@ class _ListingPageState extends State<ListingsScreen> {
                     : Container(
                         child: Center(
                             child: Text('No results matching your search')));
+              } else if (snapshot.hasError || snapshot.connectionState == ConnectionState.none) {
+                return NoConnectionNotification(
+                  onRefresh: () => _getListings(),
+                );
               }
               return _buildLoadingIndicator();
             }));
