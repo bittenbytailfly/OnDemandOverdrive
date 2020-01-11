@@ -78,7 +78,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
       ),
     );
 
-    final _thirdHeight = MediaQuery.of(context).size.height / 6;
+    final _thirdHeight = 100.0;
 
     return Column(
       children: <Widget>[
@@ -105,12 +105,11 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: <Widget>[
-          Expanded(
-            flex: 4,
+          Container(
+            height: 200.0,
             child: _buildCoverArt(listing),
           ),
           Expanded(
-              flex: 8,
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Column(
@@ -189,7 +188,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
   Widget _buildBackgroundStack(ListingDetail listing) {
     return LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
-      final _thirdHeight = MediaQuery.of(context).size.height / 3;
+      final _thirdHeight = 250.0;
       return Stack(children: <Widget>[
         FadeInImage(
           image: NetworkImage(listing.image),
