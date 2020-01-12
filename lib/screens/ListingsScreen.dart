@@ -46,7 +46,18 @@ class _ListingPageState extends State<ListingsScreen> {
     });
   }
 
-  Future _updateListings() async {
+  Future _refreshListings() async {
+    setState(() {
+      this._filteredListings = new Future(() {
+        listingsService.getListings().then((listings) {
+          this._listings = listings.cast<Listing>();
+          _updateListings();
+        });
+      });
+    });
+  }
+
+  void _updateListings() {
     setState(() {
       _filteredListings = _filterListings();
     });
@@ -202,7 +213,7 @@ class _ListingPageState extends State<ListingsScreen> {
 
   Widget _buildListings() {
     return RefreshIndicator(
-      onRefresh: _updateListings,
+      onRefresh: _refreshListings,
       displacement: 20.0,
       child: Container(
           padding: const EdgeInsets.only(left: 8, right: 8),
