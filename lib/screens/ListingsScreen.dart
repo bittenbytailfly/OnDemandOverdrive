@@ -273,10 +273,11 @@ class _ListingPageState extends State<ListingsScreen> {
                       fit: BoxFit.contain,
                     ),
                   ),
-                  Center(
+                  Container(
                     child: FadeInImage(
                       image: NetworkImage(listing.image),
-                      fit: BoxFit.contain,
+                      fit: BoxFit.fitHeight,
+                      height: double.maxFinite,
                       placeholder:
                           AssetImage('assets/images/placeholder-trans.png'),
                     ),
