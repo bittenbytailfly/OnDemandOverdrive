@@ -223,7 +223,7 @@ class _ListingPageState extends State<ListingsScreen> {
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
                   return snapshot.data.length > 0
-                      ? _buildResultWidget(snapshot)
+                      ? _buildResultWidget(snapshot.data)
                       : _buildNoResultsWidget();
                 } else if (snapshot.hasError ||
                     snapshot.connectionState == ConnectionState.none) {
@@ -236,41 +236,45 @@ class _ListingPageState extends State<ListingsScreen> {
     );
   }
 
-  Widget _buildResultWidget(AsyncSnapshot snapshot) {
+  Widget _buildResultWidget(List<Listing> listings) {
     return OrientationBuilder(
       builder: (context, orientation) {
+        List<Widget> slivers = _buildScrollView(listings.toList(), orientation);
         return CustomScrollView(
-          slivers: <Widget>[
-            SliverPadding(
-              padding: EdgeInsets.only(top: 16.0, bottom: 16.0),
-              sliver: SliverList(
-                delegate: SliverChildListDelegate([
-                  Center(
-                    child: AdmobBanner(
-                      adUnitId: 'ca-app-pub-3940256099942544/6300978111',
-                      adSize: AdmobBannerSize.LARGE_BANNER,
-                    ),
-                  ),
-                ]),
-              ),
-            ),
-            SliverPadding(
-              padding: EdgeInsets.only(bottom: 16.0),
-              sliver: SliverGrid(
-                gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: orientation == Orientation.landscape ? 5 : 3,
-                  childAspectRatio: 0.7,
-                  crossAxisSpacing: 8,
-                  mainAxisSpacing: 8,
-                ),
-                delegate: SliverChildBuilderDelegate((context, i) {
-                  return _buildListing(snapshot.data[i]);
-                }, childCount: snapshot.data.length),
-              ),
-            )
-          ],
+          slivers: slivers,
         );
       },
+    );
+  }
+
+  SliverPadding _buildGridViewWidget(
+      Orientation orientation, List<Listing> listings) {
+    return SliverPadding(
+      padding: EdgeInsets.only(top: 16.0, bottom: 16.0),
+      sliver: SliverGrid(
+        gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: orientation == Orientation.landscape ? 4 : 3,
+          childAspectRatio: 0.7,
+          crossAxisSpacing: 8,
+          mainAxisSpacing: 8,
+        ),
+        delegate: SliverChildBuilderDelegate((context, i) {
+          return _buildListing(listings[i]);
+        }, childCount: listings.length),
+      ),
+    );
+  }
+
+  Widget _buildAdMobBanner() {
+    return SliverList(
+      delegate: SliverChildListDelegate([
+        Center(
+          child: AdmobBanner(
+            adUnitId: 'ca-app-pub-3940256099942544/6300978111',
+            adSize: AdmobBannerSize.MEDIUM_RECTANGLE,
+          ),
+        ),
+      ]),
     );
   }
 
@@ -342,5 +346,19 @@ class _ListingPageState extends State<ListingsScreen> {
         },
       ),
     );
+  }
+
+  List<Widget> _buildScrollView(
+      List<Listing> listings, Orientation orientation) {
+    List<Widget> widgets = <Widget>[];
+
+    widgets.add(_buildGridViewWidget(orientation, listings.take(12).toList()));
+    widgets.add(_buildAdMobBanner());
+    if (listings.length > 12) {
+      widgets
+          .add(_buildGridViewWidget(orientation, listings.skip(12).toList()));
+    }
+
+    return widgets;
   }
 }

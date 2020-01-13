@@ -95,7 +95,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                 child: Center(
                   child: AdmobBanner(
                     adUnitId: 'ca-app-pub-3940256099942544/6300978111',
-                    adSize: AdmobBannerSize.MEDIUM_RECTANGLE,
+                    adSize: AdmobBannerSize.LARGE_BANNER,
                   ),
                 ),
               ),
