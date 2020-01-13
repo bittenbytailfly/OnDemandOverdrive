@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:admob_flutter/admob_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -89,6 +90,15 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
             children: [
               _buildListingDetailHeader(listing),
               _buildTextInfo('', listing.description),
+              Padding(
+                padding: EdgeInsets.only(top: 16.0),
+                child: Center(
+                  child: AdmobBanner(
+                    adUnitId: 'ca-app-pub-3940256099942544/6300978111',
+                    adSize: AdmobBannerSize.MEDIUM_RECTANGLE,
+                  ),
+                ),
+              ),
               _buildTextInfo('Actors', listing.actors),
               _buildTextInfo('Directed By', listing.director),
               _buildTextInfo('Production', listing.production),
