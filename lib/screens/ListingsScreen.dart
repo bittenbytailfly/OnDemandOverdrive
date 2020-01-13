@@ -239,24 +239,24 @@ class _ListingPageState extends State<ListingsScreen> {
   Widget _buildResultWidget(AsyncSnapshot snapshot) {
     return OrientationBuilder(
       builder: (context, orientation) {
-        return Padding(
-          padding: const EdgeInsets.only(top: 16.0, bottom: 16.0),
-          child: CustomScrollView(
-            slivers: <Widget>[
-              SliverList(
+        return CustomScrollView(
+          slivers: <Widget>[
+            SliverPadding(
+              padding: EdgeInsets.only(top: 16.0, bottom: 16.0),
+              sliver: SliverList(
                 delegate: SliverChildListDelegate([
-                  Padding(
-                    padding: EdgeInsets.only(bottom: 16.0),
-                    child: Center(
-                      child: AdmobBanner(
-                        adUnitId: 'ca-app-pub-3940256099942544/6300978111',
-                        adSize: AdmobBannerSize.LARGE_BANNER,
-                      ),
+                  Center(
+                    child: AdmobBanner(
+                      adUnitId: 'ca-app-pub-3940256099942544/6300978111',
+                      adSize: AdmobBannerSize.LARGE_BANNER,
                     ),
                   ),
                 ]),
               ),
-              SliverGrid(
+            ),
+            SliverPadding(
+              padding: EdgeInsets.only(bottom: 16.0),
+              sliver: SliverGrid(
                 gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: orientation == Orientation.landscape ? 5 : 3,
                   childAspectRatio: 0.7,
@@ -266,9 +266,9 @@ class _ListingPageState extends State<ListingsScreen> {
                 delegate: SliverChildBuilderDelegate((context, i) {
                   return _buildListing(snapshot.data[i]);
                 }, childCount: snapshot.data.length),
-              )
-            ],
-          ),
+              ),
+            )
+          ],
         );
       },
     );
