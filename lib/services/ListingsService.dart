@@ -6,7 +6,7 @@ import 'package:ondemand_overdrive/models/ListingDetail.dart';
 class ListingsService {
   Future getGenres() async {
     final response =
-        await http.get('http://test.1024design.co.uk/api/listings/genres');
+        await http.get('https://www.1024design.co.uk/api/odod/genres');
 
     if (response.statusCode == 200) {
       var data = jsonDecode(response.body);
@@ -18,7 +18,7 @@ class ListingsService {
 
   Future getListings() async {
     final response =
-        await http.get('http://test.1024design.co.uk/api/listings');
+        await http.get('https://www.1024design.co.uk/api/odod/listings');
 
     if (response.statusCode == 200) {
       var data = jsonDecode(response.body);
@@ -30,7 +30,7 @@ class ListingsService {
   }
 
   Future<ListingDetail> getDetail(BigInt id) async {
-    final response = await http.get('http://test.1024design.co.uk/api/listingdetail/get/' + id.toString());
+    final response = await http.get('https://www.1024design.co.uk/api/odod/listing/' + id.toString());
 
     if (response.statusCode == 200){
       var data = jsonDecode(response.body);
