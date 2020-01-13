@@ -1,3 +1,4 @@
+import 'package:admob_flutter/admob_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:ondemand_overdrive/models/Listing.dart';
 import 'package:ondemand_overdrive/models/FilterList.dart';
@@ -238,18 +239,37 @@ class _ListingPageState extends State<ListingsScreen> {
   Widget _buildResultWidget(AsyncSnapshot snapshot) {
     return OrientationBuilder(
       builder: (context, orientation) {
-        return GridView.builder(
-            itemCount: snapshot.data.length,
-            padding: EdgeInsets.only(top: 16.0, bottom: 16.0),
-            gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: orientation == Orientation.landscape ? 5 : 3,
-              childAspectRatio: 0.7,
-              crossAxisSpacing: 8,
-              mainAxisSpacing: 8,
-            ),
-            itemBuilder: (context, i) {
-              return _buildListing(snapshot.data[i]);
-            });
+        return Padding(
+          padding: const EdgeInsets.only(top: 16.0, bottom: 16.0),
+          child: CustomScrollView(
+            slivers: <Widget>[
+              SliverList(
+                delegate: SliverChildListDelegate([
+                  Padding(
+                    padding: EdgeInsets.only(bottom: 16.0),
+                    child: Center(
+                      child: AdmobBanner(
+                        adUnitId: 'ca-app-pub-3940256099942544/6300978111',
+                        adSize: AdmobBannerSize.LARGE_BANNER,
+                      ),
+                    ),
+                  ),
+                ]),
+              ),
+              SliverGrid(
+                gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: orientation == Orientation.landscape ? 5 : 3,
+                  childAspectRatio: 0.7,
+                  crossAxisSpacing: 8,
+                  mainAxisSpacing: 8,
+                ),
+                delegate: SliverChildBuilderDelegate((context, i) {
+                  return _buildListing(snapshot.data[i]);
+                }, childCount: snapshot.data.length),
+              )
+            ],
+          ),
+        );
       },
     );
   }
