@@ -3,8 +3,8 @@ import 'package:ondemand_overdrive/screens/ListingsScreen.dart';
 import 'package:admob_flutter/admob_flutter.dart';
 
 void main(){
-  Admob.initialize('ca-app-pub-1438831506348729~8718003556');
   WidgetsFlutterBinding.ensureInitialized();
+  Admob.initialize('ca-app-pub-1438831506348729~8718003556');
   runApp(OnDemandOverdrive());
 }
 
