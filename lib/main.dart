@@ -25,12 +25,20 @@ class OnDemandOverdrive extends StatelessWidget {
         // Notice that the counter didn't reset back to zero; the application
         // is not restarted.
         primarySwatch: Colors.teal,
-        brightness: Brightness.light
+        brightness: Brightness.light,
+        buttonTheme: ButtonThemeData(
+          buttonColor: Colors.teal,
+          textTheme: ButtonTextTheme.primary
+        ),
       ),
       darkTheme: ThemeData(
         primarySwatch: Colors.teal,
         brightness: Brightness.dark,
         appBarTheme: AppBarTheme(color: Colors.teal),
+        buttonTheme: ButtonThemeData(
+            buttonColor: Colors.teal,
+            textTheme: ButtonTextTheme.primary
+        ),
       ),
       home: ListingsScreen(title: 'On Demand Overdrive'),
     );
