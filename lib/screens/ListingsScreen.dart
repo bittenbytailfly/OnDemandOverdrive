@@ -47,7 +47,9 @@ class _ListingPageState extends State<ListingsScreen> {
       this._listingTypeFilter.addListener(_updateListings);
 
       this._updateListings();
-    }).timeout(const Duration(seconds: 10), onTimeout: _filterListingsError);
+    })
+    .timeout(const Duration(seconds: 10), onTimeout: _filterListingsError)
+    .catchError((error) => _filterListingsError());
   }
 
   Future _refreshListings() async {
@@ -56,7 +58,9 @@ class _ListingPageState extends State<ListingsScreen> {
         listingsService.getListings().then((listings) {
           this._listings = listings.cast<Listing>();
           _updateListings();
-        }).timeout(const Duration(seconds: 10), onTimeout: _filterListingsError);
+        })
+        .timeout(const Duration(seconds: 10), onTimeout: _filterListingsError)
+        .catchError((error) => _filterListingsError());
       });
     });
   }
@@ -112,7 +116,7 @@ class _ListingPageState extends State<ListingsScreen> {
                 _buildGenreFilterSliver(largerFontStyle),
               ]);
             } else if (snapshot.hasError) {
-              throw new Exception();
+              //throw new Exception();
             }
             return _buildLoadingIndicator();
           }),
