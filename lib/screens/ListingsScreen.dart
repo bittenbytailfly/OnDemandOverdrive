@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:admob_flutter/admob_flutter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -45,7 +47,9 @@ class _ListingPageState extends State<ListingsScreen> {
       this._listingTypeFilter.addListener(_updateListings);
 
       this._updateListings();
-    });
+    })
+    .timeout(const Duration(seconds: 10), onTimeout: _filterListingsError)
+    .catchError((error) => _filterListingsError());
   }
 
   Future _refreshListings() async {
@@ -54,7 +58,9 @@ class _ListingPageState extends State<ListingsScreen> {
         listingsService.getListings().then((listings) {
           this._listings = listings.cast<Listing>();
           _updateListings();
-        });
+        })
+        .timeout(const Duration(seconds: 10), onTimeout: _filterListingsError)
+        .catchError((error) => _filterListingsError());
       });
     });
   }
@@ -62,6 +68,13 @@ class _ListingPageState extends State<ListingsScreen> {
   void _updateListings() {
     setState(() {
       _filteredListings = _filterListings();
+    });
+  }
+
+  //Ensures the "unable to load data" message appears
+  FutureOr<Null> _filterListingsError() async {
+    setState(() {
+      _filteredListings = new Future(() => throw new Exception());
     });
   }
 
@@ -103,7 +116,7 @@ class _ListingPageState extends State<ListingsScreen> {
                 _buildGenreFilterSliver(largerFontStyle),
               ]);
             } else if (snapshot.hasError) {
-              throw new Exception();
+              //throw new Exception();
             }
             return _buildLoadingIndicator();
           }),
@@ -226,8 +239,7 @@ class _ListingPageState extends State<ListingsScreen> {
                   return snapshot.data.length > 0
                       ? _buildResultWidget(snapshot.data)
                       : _buildNoResultsWidget();
-                } else if (snapshot.hasError ||
-                    snapshot.connectionState == ConnectionState.none) {
+                } else if (snapshot.hasError) {
                   return NoConnectionNotification(
                     onRefresh: () => _getListings(),
                   );

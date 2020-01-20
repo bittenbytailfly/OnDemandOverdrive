@@ -8,6 +8,7 @@ import 'package:ondemand_overdrive/models/ListingDetail.dart';
 import 'package:ondemand_overdrive/services/ListingsService.dart';
 import 'package:ondemand_overdrive/widgets/NoConnectionNotification.dart';
 import 'package:transparent_image/transparent_image.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ListingDetailScreen extends StatefulWidget {
   final BigInt id;
@@ -104,6 +105,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
               _buildTextInfo('Directed By', listing.director),
               _buildTextInfo('Production', listing.production),
               _buildTextInfo('Genre', listing.genre),
+              _buildLaunchButton(listing.id),
             ],
           ),
         )
@@ -226,5 +228,16 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
         ),
       ]);
     });
+  }
+
+  Widget _buildLaunchButton(BigInt id) {
+    final url = 'https://www.netflix.com/watch/' + id.toString();
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: RaisedButton(
+        onPressed: () => launch(url),
+        child: Text('Watch on Netflix'),
+      ),
+    );
   }
 }
