@@ -36,31 +36,34 @@ class _ListingPageState extends State<ListingsScreen> {
   void _getListings() {
     Future.wait([listingsService.getGenres(), listingsService.getListings()])
         .then((futures) {
-      this._genres = futures[0].cast<String>();
-      this._listings = futures[1].cast<Listing>();
+          this._genres = futures[0].cast<String>();
+          this._listings = futures[1].cast<Listing>();
 
-      // pre-populate all the filters
-      this._listingTypeFilter = new FilterList(['movie', 'series']);
-      this._genreFilter = new FilterList(_genres);
+          // pre-populate all the filters
+          this._listingTypeFilter = new FilterList(['movie', 'series']);
+          this._genreFilter = new FilterList(_genres);
 
-      this._genreFilter.addListener(_updateListings);
-      this._listingTypeFilter.addListener(_updateListings);
+          this._genreFilter.addListener(_updateListings);
+          this._listingTypeFilter.addListener(_updateListings);
 
-      this._updateListings();
-    })
-    .timeout(const Duration(seconds: 10), onTimeout: _filterListingsError)
-    .catchError((error) => _filterListingsError());
+          this._updateListings();
+        })
+        .timeout(const Duration(seconds: 10), onTimeout: _filterListingsError)
+        .catchError((error) => _filterListingsError());
   }
 
   Future _refreshListings() async {
     setState(() {
       this._filteredListings = new Future(() {
-        listingsService.getListings().then((listings) {
-          this._listings = listings.cast<Listing>();
-          _updateListings();
-        })
-        .timeout(const Duration(seconds: 10), onTimeout: _filterListingsError)
-        .catchError((error) => _filterListingsError());
+        listingsService
+            .getListings()
+            .then((listings) {
+              this._listings = listings.cast<Listing>();
+              _updateListings();
+            })
+            .timeout(const Duration(seconds: 10),
+                onTimeout: _filterListingsError)
+            .catchError((error) => _filterListingsError());
       });
     });
   }
@@ -283,7 +286,9 @@ class _ListingPageState extends State<ListingsScreen> {
       delegate: SliverChildListDelegate([
         Center(
           child: AdmobBanner(
-            adUnitId: kReleaseMode ? adUnitId : 'ca-app-pub-3940256099942544/6300978111',
+            adUnitId: kReleaseMode
+                ? adUnitId
+                : 'ca-app-pub-3940256099942544/6300978111',
             adSize: bannerSize,
           ),
         ),
@@ -365,13 +370,16 @@ class _ListingPageState extends State<ListingsScreen> {
       List<Listing> listings, Orientation orientation) {
     List<Widget> widgets = <Widget>[];
 
-    widgets.add(SliverPadding(padding: EdgeInsets.only(top: 16.0),));
-    widgets.add(_buildAdMobBanner('ca-app-pub-1438831506348729/5313218812', AdmobBannerSize.LARGE_BANNER));
-    widgets.add(_buildGridViewWidget(orientation, listings.take(12).toList()));
-    widgets.add(_buildAdMobBanner('ca-app-pub-1438831506348729/6805128414', AdmobBannerSize.MEDIUM_RECTANGLE));
-    if (listings.length > 12) {
+    final listingsBeforeFirstAd = orientation == Orientation.landscape
+      ? 4
+      : 6;
+
+    widgets.add(_buildGridViewWidget(orientation, listings.take(listingsBeforeFirstAd).toList()));
+    widgets.add(_buildAdMobBanner('ca-app-pub-1438831506348729/6805128414',
+        AdmobBannerSize.MEDIUM_RECTANGLE));
+    if (listings.length > listingsBeforeFirstAd) {
       widgets
-          .add(_buildGridViewWidget(orientation, listings.skip(12).toList()));
+          .add(_buildGridViewWidget(orientation, listings.skip(listingsBeforeFirstAd).toList()));
     }
 
     return widgets;
