@@ -233,10 +233,14 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
   Widget _buildLaunchButton(BigInt id) {
     final url = 'https://www.netflix.com/watch/' + id.toString();
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.all(16.0),
       child: RaisedButton(
+        padding: const EdgeInsets.all(16.0),
         onPressed: () => launch(url),
-        child: Text('Watch on Netflix'),
+        child: Text(
+          'Watch on Netflix',
+          style: TextStyle(fontSize: 18),
+        ),
       ),
     );
   }
