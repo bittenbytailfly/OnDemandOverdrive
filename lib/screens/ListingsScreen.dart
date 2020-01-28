@@ -8,6 +8,7 @@ import 'package:ondemand_overdrive/models/Listing.dart';
 import 'package:ondemand_overdrive/models/FilterList.dart';
 import 'package:ondemand_overdrive/screens/FilterDrawer.dart';
 import 'package:ondemand_overdrive/screens/ListingDetailScreen.dart';
+import 'package:ondemand_overdrive/screens/menuDrawer.dart';
 import 'package:ondemand_overdrive/services/ListingsService.dart';
 import 'package:ondemand_overdrive/widgets/NoConnectionNotification.dart';
 
@@ -111,7 +112,7 @@ class _ListingPageState extends State<ListingsScreen> {
         ],
       ),
       body: _buildListings(),
-      drawer: FilterDrawer(genres: this._genres, listingTypeFilter: this._listingTypeFilter, genreFilter: this._genreFilter),
+      drawer: MenuDrawer(),
       endDrawer: FilterDrawer(genres: this._genres, listingTypeFilter: this._listingTypeFilter, genreFilter: this._genreFilter),
     );
   }
