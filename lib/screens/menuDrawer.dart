@@ -71,15 +71,9 @@ class _MenuDrawerState extends State<MenuDrawer> {
       currentAccountPicture: Container(
           child: CircleAvatar(
             child: ClipOval(
-              child: Center(
-                child: Icon(
-                  Icons.person,
-                  size: 100.0,
-                ),
-              ),
+                child: Icon(Icons.person, size: 50.0,)),
             ),
-          )
-      ),
+          ),
       accountName: Container(
         child: Text('Not signed in'),
       ),

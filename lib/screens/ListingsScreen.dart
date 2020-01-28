@@ -4,6 +4,7 @@ import 'package:admob_flutter/admob_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:ondemand_overdrive/models/Listing.dart';
 import 'package:ondemand_overdrive/models/FilterList.dart';
 import 'package:ondemand_overdrive/screens/FilterDrawer.dart';
@@ -101,19 +102,16 @@ class _ListingPageState extends State<ListingsScreen> {
       appBar: AppBar(
         title: Text(widget.title),
         automaticallyImplyLeading: true,
-        actions: [
-          Builder(
-            builder: (context) => IconButton(
-              icon: Icon(Icons.filter_list),
-              onPressed: () => Scaffold.of(context).openEndDrawer(),
-              tooltip: 'Filter Results',
-            ),
-          ),
+        actions: <Widget>[
+          Container()
         ],
       ),
       body: _buildListings(),
       drawer: MenuDrawer(),
-      endDrawer: FilterDrawer(genres: this._genres, listingTypeFilter: this._listingTypeFilter, genreFilter: this._genreFilter),
+      endDrawer: FilterDrawer(
+          genres: this._genres,
+          listingTypeFilter: this._listingTypeFilter,
+          genreFilter: this._genreFilter),
     );
   }
 
@@ -253,19 +251,47 @@ class _ListingPageState extends State<ListingsScreen> {
     );
   }
 
-  List<Widget> _buildScrollView(List<Listing> listings, Orientation orientation) {
+  List<Widget> _buildScrollView(
+      List<Listing> listings, Orientation orientation) {
     List<Widget> widgets = <Widget>[];
 
     final listingsBeforeFirstAd = orientation == Orientation.landscape ? 4 : 6;
 
-    widgets.add(_buildGridViewWidget(orientation, listings.take(listingsBeforeFirstAd).toList()));
+    widgets.add(FilterButton());
+    widgets.add(_buildGridViewWidget(
+        orientation, listings.take(listingsBeforeFirstAd).toList()));
     widgets.add(_buildAdMobBanner('ca-app-pub-1438831506348729/6805128414',
         AdmobBannerSize.MEDIUM_RECTANGLE));
     if (listings.length > listingsBeforeFirstAd) {
-      widgets
-          .add(_buildGridViewWidget(orientation, listings.skip(listingsBeforeFirstAd).toList()));
+      widgets.add(_buildGridViewWidget(
+          orientation, listings.skip(listingsBeforeFirstAd).toList()));
     }
 
     return widgets;
+  }
+}
+
+class FilterButton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return SliverList(
+      delegate: SliverChildListDelegate([
+        Container(
+          decoration: BoxDecoration(color: Colors.tealAccent),
+          child: Align(
+            alignment: Alignment.centerRight,
+            child: FlatButton.icon(
+              color: Colors.transparent,
+              label: Text(
+                'FILTER',
+                style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+              ),
+              icon: Icon(Icons.filter_list),
+              onPressed: Scaffold.of(context).openEndDrawer,
+            ),
+          ),
+        ),
+      ]),
+    );
   }
 }
