@@ -74,7 +74,7 @@ class SignInButton extends StatelessWidget {
             leading = Icon(
               Icons.person,
             );
-            tapEvent = userAuth.handleSignIn;
+            tapEvent = userAuth.signIn;
             break;
           case AuthState.SigningIn:
             title = Text(
@@ -91,7 +91,7 @@ class SignInButton extends StatelessWidget {
             leading = Icon(
               Icons.exit_to_app,
             );
-            tapEvent = userAuth.handleSignOut;
+            tapEvent = userAuth.signOut;
             break;
             break;
         }

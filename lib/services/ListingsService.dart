@@ -17,8 +17,7 @@ class ListingsService {
   }
 
   Future getListings() async {
-    final response =
-        await http.get('https://www.1024design.co.uk/api/odod/listings');
+    final response = await http.get('https://www.1024design.co.uk/api/odod/listings');
 
     if (response.statusCode == 200) {
       var data = jsonDecode(response.body);

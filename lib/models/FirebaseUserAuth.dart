@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:http/http.dart' as http;
 
 enum AuthState { NotSignedIn, SigningIn, SignedIn }
 
@@ -9,6 +11,7 @@ class FirebaseUserAuth extends ChangeNotifier {
 
   final GoogleSignIn _googleSignIn = GoogleSignIn();
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseMessaging _fcm = FirebaseMessaging();
 
   FirebaseUser _user;
   AuthState _state;
@@ -25,7 +28,7 @@ class FirebaseUserAuth extends ChangeNotifier {
     _setCurrentUser();
   }
 
-  void handleSignIn() async {
+  void signIn() async {
     this.state = AuthState.SigningIn;
     final GoogleSignInAccount googleUser = await _googleSignIn.signIn();
     final GoogleSignInAuthentication googleAuth = await googleUser
@@ -37,10 +40,31 @@ class FirebaseUserAuth extends ChangeNotifier {
     );
 
     await _auth.signInWithCredential(credential);
+
+    var user = await _auth.currentUser();
+    await _registerUser(user);
+
     _setCurrentUser();
   }
 
-  void handleSignOut() async {
+  Future<void> _registerUser(FirebaseUser user) async {
+    var userToken = await user.getIdToken();
+    var fcmToken = await _fcm.getToken();
+
+    var tokenMap = new Map<String, dynamic>();
+    tokenMap['userToken'] = userToken.token;
+    tokenMap['fcmToken'] = fcmToken;
+
+    final response = await http.post('https://www.1024design.co.uk/api/odod/register',
+      body: tokenMap
+    );
+
+    if (response.statusCode != 201) {
+      throw Exception();
+    }
+  }
+
+  void signOut() async {
     this.state = AuthState.SigningIn;
     await Future.wait([
       _auth.signOut(),
@@ -50,6 +74,7 @@ class FirebaseUserAuth extends ChangeNotifier {
   }
 
   void _setCurrentUser() async {
+    this.state = AuthState.SigningIn;
     var user = await _auth.currentUser();
     this._user = user;
     this.state = user == null ? AuthState.NotSignedIn : AuthState.SignedIn;
