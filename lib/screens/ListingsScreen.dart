@@ -9,7 +9,7 @@ import 'package:ondemand_overdrive/models/Listing.dart';
 import 'package:ondemand_overdrive/models/FilterList.dart';
 import 'package:ondemand_overdrive/screens/FilterDrawer.dart';
 import 'package:ondemand_overdrive/screens/ListingDetailScreen.dart';
-import 'package:ondemand_overdrive/screens/menuDrawer.dart';
+import 'package:ondemand_overdrive/screens/MenuDrawer.dart';
 import 'package:ondemand_overdrive/services/ListingsService.dart';
 import 'package:ondemand_overdrive/widgets/NoConnectionNotification.dart';
 
@@ -277,7 +277,11 @@ class FilterButton extends StatelessWidget {
     return SliverList(
       delegate: SliverChildListDelegate([
         Container(
-          decoration: BoxDecoration(color: Colors.tealAccent),
+          height: 50.0,
+          decoration: BoxDecoration(
+            color: Colors.teal.shade700,
+            backgroundBlendMode: BlendMode.darken,
+          ),
           child: Align(
             alignment: Alignment.centerRight,
             child: FlatButton.icon(
