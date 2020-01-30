@@ -2,36 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:ondemand_overdrive/models/FirebaseUserAuth.dart';
 import 'package:provider/provider.dart';
 
-class MenuDrawer extends StatefulWidget {
-  MenuDrawer({Key key}) : super(key: key);
-
-  @override
-  _MenuDrawerState createState() => _MenuDrawerState();
-}
-
-class _MenuDrawerState extends State<MenuDrawer> {
-  @override
-  void initState() {
-    super.initState();
-  }
-
+class MenuDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Consumer<FirebaseUserAuth>(
-        builder: (context, auth, child) {
-          return Drawer(
-            child: Column(
-              children: [
-                MenuDrawerHeader(),
-                ListTile(
-                  leading: Icon(Icons.notifications),
-                  title: Text('Notificatons'),
-                ),
-                SignInButton(),
-              ],
-            ),
-          );
-        }
+      builder: (context, auth, child) {
+        return Drawer(
+          child: Column(
+            children: [
+              MenuDrawerHeader(),
+              ListTile(
+                leading: Icon(Icons.notifications),
+                title: Text('Notificatons'),
+              ),
+              SignInButton(),
+            ],
+          ),
+        );
+      }
     );
   }
 }
