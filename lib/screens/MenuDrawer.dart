@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ondemand_overdrive/models/FirebaseUserAuth.dart';
+import 'package:ondemand_overdrive/screens/SubscriptionScreen.dart';
 import 'package:provider/provider.dart';
 
 class MenuDrawer extends StatelessWidget {
@@ -13,13 +14,27 @@ class MenuDrawer extends StatelessWidget {
               MenuDrawerHeader(),
               ListTile(
                 leading: Icon(Icons.notifications),
-                title: Text('Notificatons'),
+                title: Text('Subscriptions'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pushSubscriptionScreen(context);
+                },
               ),
               SignInButton(),
             ],
           ),
         );
       }
+    );
+  }
+
+  void _pushSubscriptionScreen(context) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (BuildContext context) {
+          return SubscriptionScreen();
+        },
+      ),
     );
   }
 }
@@ -92,7 +107,6 @@ class SignInButton extends StatelessWidget {
               Icons.exit_to_app,
             );
             tapEvent = userAuth.signOut;
-            break;
             break;
         }
 

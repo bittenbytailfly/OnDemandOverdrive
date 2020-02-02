@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ondemand_overdrive/models/FirebaseUserAuth.dart';
 import 'package:ondemand_overdrive/screens/ListingsScreen.dart';
 import 'package:admob_flutter/admob_flutter.dart';
+import 'package:ondemand_overdrive/services/SubscriptionService.dart';
 import 'package:provider/provider.dart';
 
 void main(){
@@ -14,8 +15,15 @@ class OnDemandOverdrive extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => FirebaseUserAuth(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (context) => FirebaseUserAuth(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => SubscriptionService(),
+        )
+      ],
       child: MaterialApp(
         title: 'On-Demand Overdrive',
         theme: ThemeData(
@@ -31,8 +39,8 @@ class OnDemandOverdrive extends StatelessWidget {
           primarySwatch: Colors.teal,
           brightness: Brightness.light,
           buttonTheme: ButtonThemeData(
-            buttonColor: Colors.teal,
-            textTheme: ButtonTextTheme.primary
+              buttonColor: Colors.teal,
+              textTheme: ButtonTextTheme.primary
           ),
         ),
         darkTheme: ThemeData(
