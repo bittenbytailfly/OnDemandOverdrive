@@ -13,7 +13,7 @@ class SubscriptionScreen extends StatelessWidget {
           title: Text('Subscriptions'),
         ),
         floatingActionButton: FloatingActionButton(
-          child: Icon(Icons.alarm_add),
+          child: Icon(Icons.add_alert),
           onPressed: null,
         ),
         body: _buildSubscriptionBody(auth),
