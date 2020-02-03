@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ondemand_overdrive/models/FirebaseUserAuth.dart';
-import 'package:ondemand_overdrive/screens/SubscriptionScreen.dart';
+import 'package:ondemand_overdrive/screens/NotificationsScreen.dart';
 import 'package:provider/provider.dart';
 
 class MenuDrawer extends StatelessWidget {
@@ -32,7 +32,7 @@ class MenuDrawer extends StatelessWidget {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (BuildContext context) {
-          return SubscriptionScreen();
+          return NotificationsScreen();
         },
       ),
     );

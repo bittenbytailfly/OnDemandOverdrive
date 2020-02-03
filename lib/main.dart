@@ -20,9 +20,7 @@ class OnDemandOverdrive extends StatelessWidget {
         ChangeNotifierProvider(
           create: (context) => FirebaseUserAuth(),
         ),
-        ChangeNotifierProvider(
-          create: (context) => SubscriptionService(),
-        )
+
       ],
       child: MaterialApp(
         title: 'On-Demand Overdrive',
