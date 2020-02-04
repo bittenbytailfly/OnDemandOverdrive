@@ -16,13 +16,13 @@ class NotificationsScreen extends StatelessWidget {
       floatingActionButton: Builder(
         builder: (context) {
           return Consumer<AccountProvider>(
-            builder: (context, account, child){
+            builder: (context, account, child) {
               return account.authState == AuthState.SignedIn
-                ? FloatingActionButton(
-                  child: Icon(Icons.add_alert),
-                  onPressed: () => _pushAddNotificationPage(context),
-                )
-                : Container();
+                  ? FloatingActionButton(
+                      child: Icon(Icons.add_alert),
+                      onPressed: () => _pushAddNotificationPage(context),
+                    )
+                  : Container();
             },
           );
         },
@@ -33,7 +33,7 @@ class NotificationsScreen extends StatelessWidget {
 
   Widget _buildSubscriptionBody() {
     return Consumer<AccountProvider>(
-      builder: (context, account, child){
+      builder: (context, account, child) {
         switch (account.authState) {
           case AuthState.NotSignedIn:
             return Center(
@@ -66,9 +66,8 @@ class NotificationsScreen extends StatelessWidget {
 class SubscriptionList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-
     return Consumer<AccountProvider>(
-      builder: (context, account, child){
+      builder: (context, account, child) {
         if (account.subscriptionState == SubscriptionState.Retrieved) {
           if (account.subscriptions.length == 0) {
             return Center(child: Text('You don\'t currently have any subscriptions.'));
@@ -128,31 +127,29 @@ class _SubscriptionListTileState extends State<SubscriptionListTile> {
   }
 
   Widget _buildDeleteButton() {
-    return Consumer<AccountProvider>(
-      builder: (context, account, child) {
-        return GestureDetector(
-          child: Icon(
-            Icons.delete,
-            color: Colors.teal,
-          ),
-          onTap: () {
+    return Consumer<AccountProvider>(builder: (context, account, child) {
+      return GestureDetector(
+        child: Icon(
+          Icons.delete,
+          color: Colors.teal,
+        ),
+        onTap: () {
+          setState(() {
+            this._deleting = true;
+          });
+          account.deleteSubscription(widget.subscription.subscriptionId).then((_) {
             setState(() {
-              this._deleting = true;
+              this._deleting = false;
+              final subName = widget.subscription.value;
+              Scaffold.of(context)
+                ..removeCurrentSnackBar()
+                ..showSnackBar(SnackBar(
+                  content: Text('Deleted $subName'),
+                ));
             });
-            account.deleteSubscription(widget.subscription.subscriptionId).then((_) {
-              setState(() {
-                this._deleting = false;
-                final subName = widget.subscription.value;
-                Scaffold.of(context)
-                  ..removeCurrentSnackBar()
-                  ..showSnackBar(SnackBar(
-                    content: Text('Deleted $subName'),
-                  ));
-              });
-            });
-          },
-        );
-      }
-    );
+          });
+        },
+      );
+    });
   }
 }
