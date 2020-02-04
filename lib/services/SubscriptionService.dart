@@ -10,7 +10,7 @@ import 'package:ondemand_overdrive/models/Subscription.dart';
 //TODO: Error handling
 class SubscriptionService {
 
-  static Future<List<Subscription>> getSubscriptions(FirebaseUser user) async {
+  Future<List<Subscription>> getSubscriptions(FirebaseUser user) async {
     var userToken = await user.getIdToken();
     var plainTextToken = userToken.token;
     final response = await http.get('https://www.1024design.co.uk/api/odod/subscriptions',
@@ -24,7 +24,7 @@ class SubscriptionService {
     }
   }
 
-  static Future<void> registerNewSubscription(FirebaseUser user, int subscriptionTypeId, String subscriptionValue) async {
+  Future<void> registerNewSubscription(FirebaseUser user, int subscriptionTypeId, String subscriptionValue) async {
     var userToken = await user.getIdToken();
     var plainTextToken = userToken.token;
     var subscriptionMap = new Map<String, dynamic>();
@@ -39,7 +39,7 @@ class SubscriptionService {
     }
   }
 
-  static Future<void> deleteSubscription(FirebaseUser user, String subscriptionId) async {
+  Future<void> deleteSubscription(FirebaseUser user, String subscriptionId) async {
     var userToken = await user.getIdToken();
     var plainTextToken = userToken.token;
     final response = await http.delete('https://www.1024design.co.uk/api/odod/subscriptions?id=' + subscriptionId,

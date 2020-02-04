@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:ondemand_overdrive/models/FirebaseUserAuth.dart';
+import 'package:ondemand_overdrive/providers/AccountProvider.dart';
 import 'package:ondemand_overdrive/screens/ListingsScreen.dart';
 import 'package:admob_flutter/admob_flutter.dart';
-import 'package:ondemand_overdrive/services/SubscriptionService.dart';
 import 'package:provider/provider.dart';
 
 void main(){
@@ -18,7 +17,7 @@ class OnDemandOverdrive extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (context) => FirebaseUserAuth(),
+          create: (context) => AccountProvider(),
         ),
 
       ],

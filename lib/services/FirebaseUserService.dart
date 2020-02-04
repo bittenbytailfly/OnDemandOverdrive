@@ -1,35 +1,20 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 
-enum AuthState { NotSignedIn, SigningIn, SignedIn }
-
-//TODO: Handle timeouts and errors etc.
-class FirebaseUserAuth extends ChangeNotifier {
+class FirebaseUserService {
 
   final GoogleSignIn _googleSignIn = GoogleSignIn();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseMessaging _fcm = FirebaseMessaging();
 
-  FirebaseUser _user;
-  AuthState _state;
-
-  FirebaseUser get user => _user;
-  AuthState get state => _state;
-
-  set state(AuthState state) {
-    this._state = state;
-    notifyListeners();
+  Future<FirebaseUser> getCurrentUser() async {
+    final user = await _auth.currentUser();
+    return user;
   }
 
-  FirebaseUserAuth() : super(){
-    _setCurrentUser();
-  }
-
-  void signIn() async {
-    this.state = AuthState.SigningIn;
+  Future<FirebaseUser> signIn() async {
     final GoogleSignInAccount googleUser = await _googleSignIn.signIn();
     final GoogleSignInAuthentication googleAuth = await googleUser
         .authentication;
@@ -44,7 +29,14 @@ class FirebaseUserAuth extends ChangeNotifier {
     var user = await _auth.currentUser();
     await _registerUser(user);
 
-    _setCurrentUser();
+    return getCurrentUser();
+  }
+
+  Future<void> signOut() async {
+    await Future.wait([
+      _auth.signOut(),
+      _googleSignIn.signOut()
+    ]);
   }
 
   Future<void> _registerUser(FirebaseUser user) async {
@@ -56,27 +48,11 @@ class FirebaseUserAuth extends ChangeNotifier {
     tokenMap['fcmToken'] = fcmToken;
 
     final response = await http.post('https://www.1024design.co.uk/api/odod/register',
-      body: tokenMap
+        body: tokenMap
     );
 
     if (response.statusCode != 201) {
       throw Exception();
     }
-  }
-
-  void signOut() async {
-    this.state = AuthState.SigningIn;
-    await Future.wait([
-      _auth.signOut(),
-      _googleSignIn.signOut()
-    ]);
-    _setCurrentUser();
-  }
-
-  void _setCurrentUser() async {
-    this.state = AuthState.SigningIn;
-    var user = await _auth.currentUser();
-    this._user = user;
-    this.state = user == null ? AuthState.NotSignedIn : AuthState.SignedIn;
   }
 }

@@ -1,30 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:ondemand_overdrive/models/FirebaseUserAuth.dart';
+import 'package:ondemand_overdrive/providers/AccountProvider.dart';
 import 'package:ondemand_overdrive/screens/NotificationsScreen.dart';
 import 'package:provider/provider.dart';
 
 class MenuDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Consumer<FirebaseUserAuth>(
-      builder: (context, auth, child) {
-        return Drawer(
-          child: Column(
-            children: [
-              MenuDrawerHeader(),
-              ListTile(
-                leading: Icon(Icons.notifications),
-                title: Text('Subscriptions'),
-                onTap: () {
-                  Navigator.pop(context);
-                  _pushSubscriptionScreen(context);
-                },
-              ),
-              SignInButton(),
-            ],
+    return Drawer(
+      child: Column(
+        children: [
+          MenuDrawerHeader(),
+          ListTile(
+            leading: Icon(Icons.notifications),
+            title: Text('Subscriptions'),
+            onTap: () {
+              Navigator.pop(context);
+              _pushSubscriptionScreen(context);
+            },
           ),
-        );
-      }
+          SignInButton(),
+        ],
+      ),
     );
   }
 
@@ -42,12 +38,12 @@ class MenuDrawer extends StatelessWidget {
 class MenuDrawerHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Consumer<FirebaseUserAuth>(
-      builder: (context, userAuth, child) {
+    return Consumer<AccountProvider>(
+      builder: (context, account, child) {
 
-        final avatarWidget = userAuth.state == AuthState.SignedIn
+        final avatarWidget = account.authState == AuthState.SignedIn
           ? CircleAvatar(
-              backgroundImage: NetworkImage(userAuth.user.photoUrl),
+              backgroundImage: NetworkImage(account.user.photoUrl),
             )
           : CircleAvatar(
               child: ClipOval(
@@ -66,7 +62,7 @@ class MenuDrawerHeader extends StatelessWidget {
               child: avatarWidget
           ),
           accountName: Container(
-            child: Text(userAuth.state == AuthState.SignedIn ? userAuth.user.displayName : 'Not Signed In'),
+            child: Text(account.authState == AuthState.SignedIn ? account.user.displayName : 'Not Signed In'),
           ),
         );
       }
@@ -77,19 +73,19 @@ class MenuDrawerHeader extends StatelessWidget {
 class SignInButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Consumer<FirebaseUserAuth>(
-      builder: (context, userAuth, child) {
+    return Consumer<AccountProvider>(
+      builder: (context, account, child) {
         Widget title;
         Widget leading;
         GestureTapCallback tapEvent;
 
-        switch (userAuth.state){
+        switch (account.authState){
           case AuthState.NotSignedIn:
             title = Text('Sign In');
             leading = Icon(
               Icons.person,
             );
-            tapEvent = userAuth.signIn;
+            tapEvent = account.signIn;
             break;
           case AuthState.SigningIn:
             title = Text(
@@ -106,7 +102,7 @@ class SignInButton extends StatelessWidget {
             leading = Icon(
               Icons.exit_to_app,
             );
-            tapEvent = userAuth.signOut;
+            tapEvent = account.signOut;
             break;
         }
 

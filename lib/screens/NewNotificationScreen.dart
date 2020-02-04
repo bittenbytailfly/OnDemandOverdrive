@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:ondemand_overdrive/models/FirebaseUserAuth.dart';
 import 'package:ondemand_overdrive/models/SubscriptionType.dart';
+import 'package:ondemand_overdrive/providers/AccountProvider.dart';
 import 'package:ondemand_overdrive/services/SubscriptionService.dart';
 import 'package:provider/provider.dart';
 
@@ -33,12 +33,6 @@ class _NewNotificationScreenState extends State<NewNotificationScreen> {
   }
 
   Widget _buildAdditionForm(){
-    if (this._adding){
-      return Center(
-        child: CircularProgressIndicator()
-      );
-    }
-
     return Container(
       child: ListView(
         padding: EdgeInsets.all(8.0),
@@ -86,17 +80,16 @@ class _NewNotificationScreenState extends State<NewNotificationScreen> {
             padding: const EdgeInsets.only(top: 16.0),
             child: Align(
               alignment: Alignment.centerLeft,
-              child: Consumer<FirebaseUserAuth>(
-                builder: (consumer, auth, child){
+              child: Consumer<AccountProvider>(
+                builder: (consumer, account, child){
                   return RaisedButton(
-                    child: Text('Add'),
-                    onPressed: () {
+                    child: Text(this._adding ? 'Adding ...' : 'Add'),
+                    onPressed: this._adding ? null :  () {
                       setState(() {
                         _adding = true;
                       });
-                      SubscriptionService.registerNewSubscription(auth.user, this._selectedSubscriptionType.id, this._notificationValue).then(
-                              (_) => Navigator.pop(context, this._notificationValue)
-                      );
+                      account.registerSubscription(this._selectedSubscriptionType.id, this._notificationValue);
+                      Navigator.pop(context, this._notificationValue);
                     },
                   );
                 },
