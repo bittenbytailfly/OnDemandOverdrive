@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ondemand_overdrive/models/SubscriptionType.dart';
 import 'package:ondemand_overdrive/providers/AccountProvider.dart';
@@ -19,11 +18,11 @@ class NotificationsScreen extends StatelessWidget {
           return Consumer<AccountProvider>(
             builder: (context, account, child){
               return account.authState == AuthState.SignedIn
-                  ? FloatingActionButton(
-                    child: Icon(Icons.add_alert),
-                    onPressed: () => _pushAddNotificationPage(context),
-                  )
-                  : Container();
+                ? FloatingActionButton(
+                  child: Icon(Icons.add_alert),
+                  onPressed: () => _pushAddNotificationPage(context),
+                )
+                : Container();
             },
           );
         },
@@ -64,12 +63,7 @@ class NotificationsScreen extends StatelessWidget {
   }
 }
 
-class SubscriptionList extends StatefulWidget {
-  @override
-  _SubscriptionListState createState() => _SubscriptionListState();
-}
-
-class _SubscriptionListState extends State<SubscriptionList> {
+class SubscriptionList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
