@@ -16,9 +16,15 @@ class NotificationsScreen extends StatelessWidget {
       ),
       floatingActionButton: Builder(
         builder: (context) {
-          return FloatingActionButton(
-            child: Icon(Icons.add_alert),
-            onPressed: () => _pushAddNotificationPage(context),
+          return Consumer<AccountProvider>(
+            builder: (context, account, child){
+              return account.authState == AuthState.SignedIn
+                  ? FloatingActionButton(
+                    child: Icon(Icons.add_alert),
+                    onPressed: () => _pushAddNotificationPage(context),
+                  )
+                  : Container();
+            },
           );
         },
       ),
