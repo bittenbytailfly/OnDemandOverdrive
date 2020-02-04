@@ -52,7 +52,7 @@ class NotificationsScreen extends StatelessWidget {
       Scaffold.of(context)
         ..removeCurrentSnackBar()
         ..showSnackBar(SnackBar(
-          content: Text(result),
+          content: Text('Added $result'),
         ));
     });
   }
@@ -114,7 +114,7 @@ class _SubscriptionListTileState extends State<SubscriptionListTile> {
     return new ListTile(
       leading: Icon(type.icon),
       title: Text(widget.subscription.value),
-      subtitle: Text('Actor'),
+      subtitle: Text(type.name),
       trailing: this._deleting ? _buildDeletingIndicator() : _buildDeleteButton(),
     );
   }
@@ -139,7 +139,17 @@ class _SubscriptionListTileState extends State<SubscriptionListTile> {
             setState(() {
               this._deleting = true;
             });
-            account.deleteSubscription(widget.subscription.subscriptionId);
+            account.deleteSubscription(widget.subscription.subscriptionId).then((_) {
+              setState(() {
+                this._deleting = false;
+                final subName = widget.subscription.value;
+                Scaffold.of(context)
+                  ..removeCurrentSnackBar()
+                  ..showSnackBar(SnackBar(
+                    content: Text('Deleted $subName'),
+                  ));
+              });
+            });
           },
         );
       }

@@ -70,15 +70,15 @@ class AccountProvider extends ChangeNotifier {
   }
 
   void registerSubscription(int subscriptionTypeId, String value) {
+    this.subscriptionState = SubscriptionState.Fetching;
     this._subscriptionService.registerNewSubscription(this.user, subscriptionTypeId, value).then((_) {
       this.getSubscriptions();
     });
   }
 
-  void deleteSubscription(String id){
+  Future<void> deleteSubscription(String id) async {
     this._subscriptionService.deleteSubscription(this.user, id).then((_){
-      final updatedSubs = new List<Subscription>();
-      updatedSubs.addAll(this.subscriptions);
+      final updatedSubs = List<Subscription>.from(this._subscriptions);
       updatedSubs.removeWhere((sub) => sub.subscriptionId == id);
       this._subscriptions = updatedSubs;
       notifyListeners();
