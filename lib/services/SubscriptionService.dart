@@ -50,6 +50,28 @@ class SubscriptionService {
     }
   }
 
+  static Future<List<String>> getActors(String term) async {
+    final response = await http.get('https://www.1024design.co.uk/api/odod/actors?term=$term');
+
+    if (response.statusCode == 200) {
+      var data = jsonDecode(response.body);
+      return data.cast<String>();
+    } else {
+      throw Exception();
+    }
+  }
+
+  static Future<List<String>> getDirectors(String term) async {
+    final response = await http.get('https://www.1024design.co.uk/api/odod/directors?term=$term');
+
+    if (response.statusCode == 200) {
+      var data = jsonDecode(response.body);
+      return data.cast<String>();
+    } else {
+      throw Exception();
+    }
+  }
+
   static SubscriptionType getTypeById(int id){
     switch (id){
       case 1:
@@ -67,7 +89,7 @@ class SubscriptionService {
     return <SubscriptionType>[
       SubscriptionType.actor(),
       SubscriptionType.director(),
-      SubscriptionType.title(),
+      //SubscriptionType.title(),
     ];
   }
 }
