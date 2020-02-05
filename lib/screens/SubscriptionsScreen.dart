@@ -92,13 +92,14 @@ class SubscriptionList extends StatelessWidget {
             return Center(child: Text('You don\'t currently have any subscriptions.'));
           }
           return ListView.builder(
-              itemCount: account.subscriptions.length,
-              itemBuilder: (context, index) {
-                Subscription sub = account.subscriptions[index];
-                return SubscriptionListTile(
-                  subscription: sub,
-                );
-              });
+            padding: EdgeInsets.only(bottom: 100.0),
+            itemCount: account.subscriptions.length,
+            itemBuilder: (context, index) {
+              Subscription sub = account.subscriptions[index];
+              return SubscriptionListTile(
+                subscription: sub,
+              );
+            });
         }
         return Center(
           child: CircularProgressIndicator(),
