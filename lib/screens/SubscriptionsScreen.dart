@@ -6,12 +6,12 @@ import 'package:provider/provider.dart';
 import 'NewNotificationScreen.dart';
 import 'package:ondemand_overdrive/models/Subscription.dart';
 
-class NotificationsScreen extends StatelessWidget {
+class SubscriptionsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Notifications'),
+        title: Text('Subscriptions'),
       ),
       floatingActionButton: Builder(
         builder: (context) {
@@ -36,8 +36,25 @@ class NotificationsScreen extends StatelessWidget {
       builder: (context, account, child) {
         switch (account.authState) {
           case AuthState.NotSignedIn:
-            return Center(
-              child: Text('You must be signed in to use this feature.'),
+            return Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    'Sign in to subscribe to notifications when a title is added from a director/actor you follow.',
+                    textAlign: TextAlign.center,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: RaisedButton(
+                      child: Text('Sign In'),
+                      onPressed: account.signIn,
+                    ),
+                  )
+                ],
+              ),
             );
           case AuthState.SigningIn:
             return Center(
@@ -53,12 +70,14 @@ class NotificationsScreen extends StatelessWidget {
   }
 
   void _pushAddNotificationPage(context) {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => NewNotificationScreen())).then((result) {
-      Scaffold.of(context)
-        ..removeCurrentSnackBar()
-        ..showSnackBar(SnackBar(
-          content: Text('Added $result'),
+    Navigator.push(context, MaterialPageRoute(builder: (context) => NewSubscriptionScreen())).then((result) {
+      if (result != null && result.length > 0) {
+        Scaffold.of(context)
+          ..removeCurrentSnackBar()
+          ..showSnackBar(SnackBar(
+            content: Text('Added $result'),
         ));
+      }
     });
   }
 }

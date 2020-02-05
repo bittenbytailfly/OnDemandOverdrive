@@ -5,12 +5,12 @@ import 'package:ondemand_overdrive/providers/AccountProvider.dart';
 import 'package:ondemand_overdrive/services/SubscriptionService.dart';
 import 'package:provider/provider.dart';
 
-class NewNotificationScreen extends StatefulWidget {
+class NewSubscriptionScreen extends StatefulWidget {
   @override
-  _NewNotificationScreenState createState() => _NewNotificationScreenState();
+  _NewSubscriptionScreenState createState() => _NewSubscriptionScreenState();
 }
 
-class _NewNotificationScreenState extends State<NewNotificationScreen> {
+class _NewSubscriptionScreenState extends State<NewSubscriptionScreen> {
   bool _adding = false;
   List<SubscriptionType> _subscriptionTypes;
   SubscriptionType _selectedSubscriptionType;
@@ -27,14 +27,17 @@ class _NewNotificationScreenState extends State<NewNotificationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('New Notification'),
+        title: Text('New Subscription'),
       ),
       body: _buildAdditionForm()
     );
   }
 
   Widget _buildAdditionForm(){
-    return Container(
+    final _formKey = GlobalKey<FormState>();
+
+    return Form(
+      key: _formKey,
       child: ListView(
         padding: EdgeInsets.all(8.0),
         children: [
@@ -96,6 +99,12 @@ class _NewNotificationScreenState extends State<NewNotificationScreen> {
             onSuggestionSelected: (suggestion) {
               this._subscriptionValueController.text = suggestion;
             },
+            validator: (value) {
+              if (value.isEmpty) {
+                return 'Please enter a name';
+              }
+              return null;
+            },
           ),
           Padding(
             padding: const EdgeInsets.only(top: 16.0),
@@ -106,11 +115,13 @@ class _NewNotificationScreenState extends State<NewNotificationScreen> {
                   return RaisedButton(
                     child: Text(this._adding ? 'Adding ...' : 'Add'),
                     onPressed: this._adding ? null :  () {
-                      setState(() {
-                        _adding = true;
-                      });
-                      account.registerSubscription(this._selectedSubscriptionType.id, this._subscriptionValueController.text);
-                      Navigator.pop(context, this._subscriptionValueController.text);
+                      if (_formKey.currentState.validate()) {
+                        setState(() {
+                          _adding = true;
+                        });
+                        account.registerSubscription(this._selectedSubscriptionType.id, this._subscriptionValueController.text);
+                        Navigator.pop(context, this._subscriptionValueController.text);
+                      }
                     },
                   );
                 },

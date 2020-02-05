@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ondemand_overdrive/providers/AccountProvider.dart';
-import 'package:ondemand_overdrive/screens/NotificationsScreen.dart';
+import 'package:ondemand_overdrive/screens/SubscriptionsScreen.dart';
 import 'package:provider/provider.dart';
 
 class MenuDrawer extends StatelessWidget {
@@ -28,7 +28,7 @@ class MenuDrawer extends StatelessWidget {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (BuildContext context) {
-          return NotificationsScreen();
+          return SubscriptionsScreen();
         },
       ),
     );
