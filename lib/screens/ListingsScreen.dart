@@ -1,11 +1,15 @@
 import 'dart:async';
 
 import 'package:admob_flutter/admob_flutter.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:ondemand_overdrive/models/Listing.dart';
 import 'package:ondemand_overdrive/models/FilterList.dart';
+import 'package:ondemand_overdrive/screens/FilterDrawer.dart';
 import 'package:ondemand_overdrive/screens/ListingDetailScreen.dart';
+import 'package:ondemand_overdrive/screens/MenuDrawer.dart';
 import 'package:ondemand_overdrive/services/ListingsService.dart';
 import 'package:ondemand_overdrive/widgets/NoConnectionNotification.dart';
 
@@ -97,135 +101,17 @@ class _ListingPageState extends State<ListingsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
+        automaticallyImplyLeading: true,
+        actions: <Widget>[
+          Container()
+        ],
       ),
       body: _buildListings(),
-      drawer: _buildDrawer(),
-    );
-  }
-
-  Widget _buildDrawer() {
-    return Drawer(
-      child: FutureBuilder(
-          future: _filteredListings,
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              const largerFontStyle = TextStyle(fontSize: 18.0);
-              return CustomScrollView(slivers: <Widget>[
-                _buildDrawerSliver(largerFontStyle),
-                _buildListingTypeFilterHeaderSliver(),
-                _buildListingTypeFilterSliver(largerFontStyle),
-                _buildDividingSliver(),
-                _buildGenreFilterHeaderSliver(),
-                _buildGenreFilterSliver(largerFontStyle),
-              ]);
-            } else if (snapshot.hasError) {
-              //throw new Exception();
-            }
-            return _buildLoadingIndicator();
-          }),
-    );
-  }
-
-  Widget _buildListingTypeFilterHeaderSliver() {
-    return SliverList(
-      delegate: SliverChildListDelegate([
-        CheckboxListTile(
-          title: const Text(
-            'Listing Type',
-            style: TextStyle(
-              fontSize: 24.0,
-              fontWeight: FontWeight.bold,
-              color: Colors.teal,
-            ),
-          ),
-          value: _listingTypeFilter.hasSelectedItems(),
-          onChanged: (bool checked) {
-            this._listingTypeFilter.toggleAll(checked);
-          },
-        )
-      ]),
-    );
-  }
-
-  Widget _buildGenreFilterHeaderSliver() {
-    return SliverList(
-      delegate: SliverChildListDelegate([
-        CheckboxListTile(
-          title: const Text(
-            'Genre',
-            style: TextStyle(
-              fontSize: 24.0,
-              fontWeight: FontWeight.bold,
-              color: Colors.teal,
-            ),
-          ),
-          value: _genreFilter.hasSelectedItems(),
-          onChanged: (bool checked) {
-            this._genreFilter.toggleAll(checked);
-          },
-        )
-      ]),
-    );
-  }
-
-  Widget _buildDividingSliver() {
-    return SliverList(
-      delegate: SliverChildListDelegate([Divider()]),
-    );
-  }
-
-  Widget _buildDrawerSliver(TextStyle largerFontStyle) {
-    return SliverList(
-      delegate: SliverChildListDelegate([
-        DrawerHeader(
-          child: Align(
-            alignment: Alignment.bottomLeft,
-            child: Text(
-              'Filter Results',
-              style: largerFontStyle,
-            ),
-          ),
-          decoration: BoxDecoration(
-            color: Colors.teal,
-          ),
-        )
-      ]),
-    );
-  }
-
-  Widget _buildGenreFilterSliver(TextStyle largerFontStyle) {
-    return SliverList(
-      delegate: SliverChildBuilderDelegate((BuildContext context, int i) {
-        return CheckboxListTile(
-          title: Text(
-            _genreFilter[i].name,
-            style: largerFontStyle,
-          ),
-          value: _genreFilter[i].isSelected,
-          onChanged: (bool checked) {
-            this._genreFilter[i].toggle(checked);
-          },
-        );
-      }, childCount: _genreFilter.length),
-    );
-  }
-
-  Widget _buildListingTypeFilterSliver(TextStyle largerFontStyle) {
-    return SliverList(
-      delegate: SliverChildBuilderDelegate((BuildContext context, int i) {
-        var label = _listingTypeFilter[i].name[0].toUpperCase() +
-            _listingTypeFilter[i].name.substring(1);
-        return CheckboxListTile(
-          title: Text(
-            label,
-            style: largerFontStyle,
-          ),
-          value: _listingTypeFilter[i].isSelected,
-          onChanged: (bool checked) {
-            this._listingTypeFilter[i].toggle(checked);
-          },
-        );
-      }, childCount: _listingTypeFilter.length),
+      drawer: MenuDrawer(),
+      endDrawer: FilterDrawer(
+          genres: this._genres,
+          listingTypeFilter: this._listingTypeFilter,
+          genreFilter: this._genreFilter),
     );
   }
 
@@ -234,7 +120,6 @@ class _ListingPageState extends State<ListingsScreen> {
       onRefresh: _refreshListings,
       displacement: 20.0,
       child: Container(
-          padding: const EdgeInsets.only(left: 8, right: 8),
           child: FutureBuilder(
               future: _filteredListings,
               builder: (context, snapshot) {
@@ -266,7 +151,7 @@ class _ListingPageState extends State<ListingsScreen> {
   SliverPadding _buildGridViewWidget(
       Orientation orientation, List<Listing> listings) {
     return SliverPadding(
-      padding: EdgeInsets.only(top: 16.0, bottom: 16.0),
+      padding: EdgeInsets.only(top: 16.0, bottom: 16.0, left: 8.0, right: 8.0),
       sliver: SliverGrid(
         gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: orientation == Orientation.landscape ? 4 : 3,
@@ -370,18 +255,47 @@ class _ListingPageState extends State<ListingsScreen> {
       List<Listing> listings, Orientation orientation) {
     List<Widget> widgets = <Widget>[];
 
-    final listingsBeforeFirstAd = orientation == Orientation.landscape
-      ? 4
-      : 6;
+    final listingsBeforeFirstAd = orientation == Orientation.landscape ? 4 : 6;
 
-    widgets.add(_buildGridViewWidget(orientation, listings.take(listingsBeforeFirstAd).toList()));
+    widgets.add(FilterButton());
+    widgets.add(_buildGridViewWidget(
+        orientation, listings.take(listingsBeforeFirstAd).toList()));
     widgets.add(_buildAdMobBanner('ca-app-pub-1438831506348729/6805128414',
         AdmobBannerSize.MEDIUM_RECTANGLE));
     if (listings.length > listingsBeforeFirstAd) {
-      widgets
-          .add(_buildGridViewWidget(orientation, listings.skip(listingsBeforeFirstAd).toList()));
+      widgets.add(_buildGridViewWidget(
+          orientation, listings.skip(listingsBeforeFirstAd).toList()));
     }
 
     return widgets;
+  }
+}
+
+class FilterButton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return SliverList(
+      delegate: SliverChildListDelegate([
+        Container(
+          height: 50.0,
+          decoration: BoxDecoration(
+            color: Colors.teal.shade700,
+            backgroundBlendMode: BlendMode.darken,
+          ),
+          child: Align(
+            alignment: Alignment.centerRight,
+            child: FlatButton.icon(
+              color: Colors.transparent,
+              label: Text(
+                'FILTER',
+                style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+              ),
+              icon: Icon(Icons.filter_list),
+              onPressed: Scaffold.of(context).openEndDrawer,
+            ),
+          ),
+        ),
+      ]),
+    );
   }
 }
