@@ -13,29 +13,10 @@ import 'package:ondemand_overdrive/screens/MenuDrawer.dart';
 import 'package:ondemand_overdrive/services/ListingsService.dart';
 import 'package:ondemand_overdrive/widgets/NoConnectionNotification.dart';
 
-class ListingsScreen extends StatefulWidget {
-  ListingsScreen({Key key, this.title}) : super(key: key);
-
+class ListingsScreen extends StatelessWidget {
   final String title;
 
-  @override
-  _ListingPageState createState() => _ListingPageState();
-}
-
-class _ListingPageState extends State<ListingsScreen> {
-  List<Listing> _listings;
-  Future _filteredListings;
-  List<String> _genres;
-  FilterList _listingTypeFilter;
-  FilterList _genreFilter;
-  final listingsService = new ListingsService();
-
-  @override
-  void initState() {
-    super.initState();
-
-    _getListings();
-  }
+  ListingsScreen({Key key, this.title}) : super(key: key);
 
   void _getListings() {
     Future.wait([listingsService.getGenres(), listingsService.getListings()])
@@ -100,7 +81,7 @@ class _ListingPageState extends State<ListingsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text(this.title),
         automaticallyImplyLeading: true,
         actions: <Widget>[
           Container()
