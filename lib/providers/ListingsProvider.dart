@@ -28,7 +28,6 @@ class ListingsProvider extends ChangeNotifier {
     this.listingTypeFilter.addListener(_filterUpdated);
   }
 
-  //TODO: handle preselected filters for refresh
   void getListings() {
     this.state = ListingsState.Fetching;
     this._listingsService.getListings().then((listings) {
@@ -38,13 +37,15 @@ class ListingsProvider extends ChangeNotifier {
           this.genres = genres;
           this.genreFilter = new FilterList(genres);
           this.genreFilter.addListener(_filterUpdated);
+          this.filterListings();
         })
         .timeout(const Duration(seconds:10), onTimeout: _handleTimeoutException)
         .catchError((error) => _handleUnspecifiedError());
       }
-      this.allListings = listings;
-      this.filteredListings.addAll(listings);
-      this.state = ListingsState.Retrieved;
+      else {
+       this.filteredListings.addAll(listings);
+       this.state = ListingsState.Retrieved;
+      }
     }).timeout(const Duration(seconds: 10), onTimeout: _handleTimeoutException
     ).catchError((error) => _handleUnspecifiedError());
   }
@@ -52,8 +53,7 @@ class ListingsProvider extends ChangeNotifier {
   void filterListings() {
     this.state = ListingsState.Fetching;
     var selectedGenreSet = Set<String>();
-    selectedGenreSet
-        .addAll(genreFilter.where((f) => f.isSelected).map((f) => f.name));
+    selectedGenreSet.addAll(genreFilter.where((f) => f.isSelected).map((f) => f.name));
     List<Listing> filtered = new List<Listing>();
     filtered.addAll(allListings.where((l) =>
     selectedGenreSet.intersection(l.genres.toSet()).length > 0 && this.listingTypeFilter.isActive(l.type)));
