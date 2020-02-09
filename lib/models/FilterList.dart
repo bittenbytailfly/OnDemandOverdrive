@@ -20,6 +20,10 @@ class FilterList extends Iterable<FilterItem> with ChangeNotifier {
     return _items.any((i) => i.isSelected);
   }
 
+  bool get hasFilterApplied{
+    return _items.any((i) => !i.isSelected);
+  }
+
   bool isActive(String item){
     return this._items.firstWhere((i) => i.name == item).isSelected;
   }

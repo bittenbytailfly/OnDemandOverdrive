@@ -20,7 +20,6 @@ class ListingDetailScreen extends StatefulWidget {
 }
 
 class _ListingDetailScreenState extends State<ListingDetailScreen> {
-  final _listingsService = new ListingsService();
   Future _listingDetail;
 
   @override
@@ -32,7 +31,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
 
   void _getListingDetail() {
     setState(() {
-      _listingDetail = this._listingsService.getDetail(widget.id);
+      _listingDetail = ListingsService.getDetail(widget.id);
     });
   }
 
