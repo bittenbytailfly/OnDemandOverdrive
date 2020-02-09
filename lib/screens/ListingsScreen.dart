@@ -204,9 +204,16 @@ class FilterButton extends StatelessWidget {
         alignment: Alignment.centerRight,
         child: FlatButton.icon(
           color: Colors.transparent,
-          label: Text(
-            'FILTER',
-            style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+          label: Consumer<ListingsProvider>(
+            builder: (context, provider, child) {
+              final filterCount = provider.numberOfFiltersApplied == 0
+                ? ''
+                : ' (' + provider.numberOfFiltersApplied.toString() + ')';
+              return Text(
+                'FILTER$filterCount',
+                style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+              );
+            }
           ),
           icon: Icon(Icons.filter_list),
           onPressed: Scaffold.of(context).openEndDrawer,

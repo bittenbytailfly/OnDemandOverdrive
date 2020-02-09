@@ -15,6 +15,7 @@ class ListingsProvider extends ChangeNotifier {
   List<String> genres;
   final FilterList listingTypeFilter = new FilterList(['movie', 'series']);
   FilterList genreFilter;
+  int numberOfFiltersApplied = 0;
 
   ListingsState _state = ListingsState.Fetching;
   ListingsState get state => _state;
@@ -58,6 +59,7 @@ class ListingsProvider extends ChangeNotifier {
     filtered.addAll(allListings.where((l) =>
     selectedGenreSet.intersection(l.genres.toSet()).length > 0 && this.listingTypeFilter.isActive(l.type)));
     this.filteredListings = filtered;
+    this.numberOfFiltersApplied = (this.listingTypeFilter.hasFilterApplied ? 1 : 0) + (this.genreFilter.hasFilterApplied ? 1 : 0);
     this.state = ListingsState.Retrieved;
   }
 
