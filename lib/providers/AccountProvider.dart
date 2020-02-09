@@ -1,11 +1,13 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ondemand_overdrive/models/Subscription.dart';
 import 'package:ondemand_overdrive/services/FirebaseUserService.dart';
 import 'package:ondemand_overdrive/services/SubscriptionService.dart';
 
-enum AuthState { NotSignedIn, SigningIn, SignedIn }
-enum SubscriptionState { Fetching, Retrieved }
+enum AuthState { NotSignedIn, SigningIn, SignedIn, Error }
+enum SubscriptionState { Fetching, Retrieved, Error }
 
 class AccountProvider extends ChangeNotifier {
   final FirebaseUserService _firebaseUserService = new FirebaseUserService();
@@ -50,7 +52,8 @@ class AccountProvider extends ChangeNotifier {
     this.authState = AuthState.SigningIn;
     this._firebaseUserService.signIn().then((user) {
       this.user = user;
-    });
+    }).timeout(const Duration(seconds: 10), onTimeout: _handleSignInTimeout)
+    .catchError(_handleSignInError);
   }
 
   void signOut() {
@@ -66,7 +69,9 @@ class AccountProvider extends ChangeNotifier {
     this._subscriptionService.getSubscriptions(user).then((subscriptions){
       this._subscriptions = subscriptions;
       this.subscriptionState = SubscriptionState.Retrieved;
-    });
+    }).timeout(const Duration(seconds: 10), onTimeout: _handleSubscriptionTimeout)
+    .catchError(_handleSubscriptionError)
+    ;
   }
 
   void registerSubscription(int subscriptionTypeId, String value) {
@@ -83,5 +88,25 @@ class AccountProvider extends ChangeNotifier {
       this._subscriptions = updatedSubs;
       notifyListeners();
     });
+  }
+
+  FutureOr<Null> _handleSubscriptionError(Object error) async {
+    this.subscriptionState = SubscriptionState.Error;
+    throw new Exception();
+  }
+
+  FutureOr<Null> _handleSubscriptionTimeout() {
+    this.subscriptionState = SubscriptionState.Error;
+    throw new Exception('Subscription timeout');
+  }
+
+  FutureOr<Null> _handleSignInError(Object error) async {
+    this.authState = AuthState.Error;
+    throw new Exception();
+  }
+
+  FutureOr<Null> _handleSignInTimeout() {
+    this.authState = AuthState.Error;
+    throw new Exception('Subscription timeout');
   }
 }

@@ -104,6 +104,19 @@ class SignInButton extends StatelessWidget {
             );
             tapEvent = account.signOut;
             break;
+          case AuthState.Error:
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              Navigator.pop(context);
+              Scaffold.of(context)
+                ..hideCurrentSnackBar()
+                ..showSnackBar(
+                  SnackBar(
+                    content: Text('Something went wrong, please try again later'),
+                  ),
+              );
+              account.authState = AuthState.NotSignedIn;
+            });
+            break;
         }
 
         return ListTile(
