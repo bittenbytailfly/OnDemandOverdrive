@@ -77,9 +77,12 @@ class _NewSubscriptionScreenState extends State<NewSubscriptionScreen> {
               ),
               textCapitalization: TextCapitalization.words,
             ),
-            hideOnEmpty: true,
+            hideOnEmpty: false,
             hideOnLoading: true,
             hideOnError: true,
+            noItemsFoundBuilder: (context) => ListTile(
+                title: Text('No matching names found in the database, but you can still add a subscription for future occurrences')
+            ),
             suggestionsCallback: (term) {
               if (term != null && term.length <= 2) {
                 return null;
