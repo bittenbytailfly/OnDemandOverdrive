@@ -1,81 +1,19 @@
-import 'dart:async';
-
 import 'package:admob_flutter/admob_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:ondemand_overdrive/models/Listing.dart';
-import 'package:ondemand_overdrive/models/FilterList.dart';
+import 'package:ondemand_overdrive/providers/ListingsProvider.dart';
 import 'package:ondemand_overdrive/screens/FilterDrawer.dart';
 import 'package:ondemand_overdrive/screens/ListingDetailScreen.dart';
 import 'package:ondemand_overdrive/screens/MenuDrawer.dart';
-import 'package:ondemand_overdrive/services/ListingsService.dart';
-import 'package:ondemand_overdrive/widgets/NoConnectionNotification.dart';
+import 'package:provider/provider.dart';
 
 class ListingsScreen extends StatelessWidget {
   final String title;
 
   ListingsScreen({Key key, this.title}) : super(key: key);
-
-  void _getListings() {
-    Future.wait([listingsService.getGenres(), listingsService.getListings()])
-        .then((futures) {
-          this._genres = futures[0].cast<String>();
-          this._listings = futures[1].cast<Listing>();
-
-          // pre-populate all the filters
-          this._listingTypeFilter = new FilterList(['movie', 'series']);
-          this._genreFilter = new FilterList(_genres);
-
-          this._genreFilter.addListener(_updateListings);
-          this._listingTypeFilter.addListener(_updateListings);
-
-          this._updateListings();
-        })
-        .timeout(const Duration(seconds: 10), onTimeout: _filterListingsError)
-        .catchError((error) => _filterListingsError());
-  }
-
-  Future _refreshListings() async {
-    setState(() {
-      this._filteredListings = new Future(() {
-        listingsService
-            .getListings()
-            .then((listings) {
-              this._listings = listings.cast<Listing>();
-              _updateListings();
-            })
-            .timeout(const Duration(seconds: 10),
-                onTimeout: _filterListingsError)
-            .catchError((error) => _filterListingsError());
-      });
-    });
-  }
-
-  void _updateListings() {
-    setState(() {
-      _filteredListings = _filterListings();
-    });
-  }
-
-  //Ensures the "unable to load data" message appears
-  FutureOr<Null> _filterListingsError() async {
-    setState(() {
-      _filteredListings = new Future(() => throw new Exception());
-    });
-  }
-
-  Future _filterListings() async {
-    var selectedGenreSet = Set<String>();
-    selectedGenreSet
-        .addAll(_genreFilter.where((f) => f.isSelected).map((f) => f.name));
-    List<Listing> filtered = new List<Listing>();
-    filtered.addAll(_listings.where((l) =>
-        selectedGenreSet.intersection(l.genres.toSet()).length > 0 &&
-        this._listingTypeFilter.isActive(l.type)));
-    return filtered;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -83,42 +21,41 @@ class ListingsScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(this.title),
         automaticallyImplyLeading: true,
-        actions: <Widget>[
-          Container()
-        ],
+        actions: <Widget>[Container()],
       ),
       body: _buildListings(),
       drawer: MenuDrawer(),
-      endDrawer: FilterDrawer(
-          genres: this._genres,
-          listingTypeFilter: this._listingTypeFilter,
-          genreFilter: this._genreFilter),
+      endDrawer: _buildFilterDrawer(),
     );
+  }
+
+  Widget _buildFilterDrawer() {
+    return Consumer<ListingsProvider>(builder: (context, listingsProvider, child) {
+      return FilterDrawer(genres: listingsProvider.genres, listingTypeFilter: listingsProvider.listingTypeFilter, genreFilter: listingsProvider.genreFilter);
+    });
   }
 
   Widget _buildListings() {
-    return RefreshIndicator(
-      onRefresh: _refreshListings,
-      displacement: 20.0,
-      child: Container(
-          child: FutureBuilder(
-              future: _filteredListings,
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  return snapshot.data.length > 0
-                      ? _buildResultWidget(snapshot.data)
-                      : _buildNoResultsWidget();
-                } else if (snapshot.hasError) {
-                  return NoConnectionNotification(
-                    onRefresh: () => _getListings(),
-                  );
-                }
-                return _buildLoadingIndicator();
-              })),
-    );
+    return Consumer<ListingsProvider>(builder: (context, listingsProvider, child) {
+      return Container(child: Builder(builder: (context) {
+        switch (listingsProvider.state) {
+          case ListingsState.Fetching:
+            return _buildLoadingIndicator();
+          case ListingsState.Retrieved:
+            return _buildResultWidget(listingsProvider.filteredListings);
+          case ListingsState.NetworkError:
+          case ListingsState.UnspecifiedError:
+          default:
+            return _buildNoResultsWidget();
+        }
+      }));
+    });
   }
 
   Widget _buildResultWidget(List<Listing> listings) {
+    if (listings.length == 0) {
+      return _buildNoResultsWidget();
+    }
     return OrientationBuilder(
       builder: (context, orientation) {
         List<Widget> slivers = _buildScrollView(listings.toList(), orientation);
@@ -129,8 +66,7 @@ class ListingsScreen extends StatelessWidget {
     );
   }
 
-  SliverPadding _buildGridViewWidget(
-      Orientation orientation, List<Listing> listings) {
+  SliverPadding _buildGridViewWidget(Orientation orientation, List<Listing> listings) {
     return SliverPadding(
       padding: EdgeInsets.only(top: 16.0, bottom: 16.0, left: 8.0, right: 8.0),
       sliver: SliverGrid(
@@ -141,7 +77,7 @@ class ListingsScreen extends StatelessWidget {
           mainAxisSpacing: 8,
         ),
         delegate: SliverChildBuilderDelegate((context, i) {
-          return _buildListing(listings[i]);
+          return _buildListing(context, listings[i]);
         }, childCount: listings.length),
       ),
     );
@@ -152,9 +88,7 @@ class ListingsScreen extends StatelessWidget {
       delegate: SliverChildListDelegate([
         Center(
           child: AdmobBanner(
-            adUnitId: kReleaseMode
-                ? adUnitId
-                : 'ca-app-pub-3940256099942544/6300978111',
+            adUnitId: kReleaseMode ? adUnitId : 'ca-app-pub-3940256099942544/6300978111',
             adSize: bannerSize,
           ),
         ),
@@ -163,8 +97,7 @@ class ListingsScreen extends StatelessWidget {
   }
 
   Widget _buildNoResultsWidget() {
-    return Container(
-        child: Center(child: Text('No results matching your search')));
+    return Container(child: Center(child: Text('No results matching your search')));
   }
 
   Widget _buildLoadingIndicator() {
@@ -175,7 +108,7 @@ class ListingsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildListing(Listing listing) {
+  Widget _buildListing(BuildContext context, Listing listing) {
     return GestureDetector(
       child: Column(children: [
         Expanded(
@@ -197,8 +130,7 @@ class ListingsScreen extends StatelessWidget {
                       image: NetworkImage(listing.image),
                       fit: BoxFit.fitHeight,
                       height: double.maxFinite,
-                      placeholder:
-                          AssetImage('assets/images/placeholder-trans.png'),
+                      placeholder: AssetImage('assets/images/placeholder-trans.png'),
                     ),
                   ),
                 ]),
@@ -216,11 +148,11 @@ class ListingsScreen extends StatelessWidget {
               ),
             )),
       ]),
-      onTap: () => _pushListingDetailPage(listing.id),
+      onTap: () => _pushListingDetailPage(context, listing.id),
     );
   }
 
-  void _pushListingDetailPage(BigInt id) {
+  void _pushListingDetailPage(context, BigInt id) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (BuildContext context) {
@@ -232,20 +164,16 @@ class ListingsScreen extends StatelessWidget {
     );
   }
 
-  List<Widget> _buildScrollView(
-      List<Listing> listings, Orientation orientation) {
+  List<Widget> _buildScrollView(List<Listing> listings, Orientation orientation) {
     List<Widget> widgets = <Widget>[];
 
     final listingsBeforeFirstAd = orientation == Orientation.landscape ? 4 : 6;
 
     widgets.add(FilterButton());
-    widgets.add(_buildGridViewWidget(
-        orientation, listings.take(listingsBeforeFirstAd).toList()));
-    widgets.add(_buildAdMobBanner('ca-app-pub-1438831506348729/6805128414',
-        AdmobBannerSize.MEDIUM_RECTANGLE));
+    widgets.add(_buildGridViewWidget(orientation, listings.take(listingsBeforeFirstAd).toList()));
+    widgets.add(_buildAdMobBanner('ca-app-pub-1438831506348729/6805128414', AdmobBannerSize.MEDIUM_RECTANGLE));
     if (listings.length > listingsBeforeFirstAd) {
-      widgets.add(_buildGridViewWidget(
-          orientation, listings.skip(listingsBeforeFirstAd).toList()));
+      widgets.add(_buildGridViewWidget(orientation, listings.skip(listingsBeforeFirstAd).toList()));
     }
 
     return widgets;

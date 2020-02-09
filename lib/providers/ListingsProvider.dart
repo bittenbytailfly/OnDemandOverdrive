@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:ondemand_overdrive/models/FilterList.dart';
 import 'package:ondemand_overdrive/models/Listing.dart';
@@ -8,7 +10,9 @@ enum ListingsState { Fetching, Retrieved, NetworkError, UnspecifiedError }
 class ListingsProvider extends ChangeNotifier {
   final _listingsService = new ListingsService();
 
-  List<Listing> listings;
+  List<Listing> filteredListings = new List<Listing>();
+  List<Listing> allListings;
+  List<String> genres;
   final FilterList listingTypeFilter = new FilterList(['movie', 'series']);
   FilterList genreFilter;
 
@@ -19,29 +23,55 @@ class ListingsProvider extends ChangeNotifier {
     this.notifyListeners();
   }
 
-  void getListings() {
-    this.state = ListingsState.Fetching;
-    this._listingsService.getListings().then((result) {
-      this.listings = result;
-      if (genreFilter == null) {
-        this._listingsService.getGenres().then((result){
-          this.genreFilter = new FilterList(result);
-        })
-        .timeout(const Duration(seconds:10), onTimeout: _handleTimeoutException)
-        .catchError(_handleUnspecifiedError);
-      }
-      this.state = ListingsState.Retrieved;
-    }).timeout(const Duration(seconds: 10), onTimeout: _handleTimeoutException
-    ).catchError(_handleUnspecifiedError);
+  ListingsProvider() {
+    this.getListings();
+    this.listingTypeFilter.addListener(_filterUpdated);
   }
 
-  void _handleTimeoutException() {
+  //TODO: handle preselected filters for refresh
+  void getListings() {
+    this.state = ListingsState.Fetching;
+    this._listingsService.getListings().then((listings) {
+      this.allListings = listings;
+      if (genreFilter == null) {
+        this._listingsService.getGenres().then((genres){
+          this.genres = genres;
+          this.genreFilter = new FilterList(genres);
+          this.genreFilter.addListener(_filterUpdated);
+        })
+        .timeout(const Duration(seconds:10), onTimeout: _handleTimeoutException)
+        .catchError((error) => _handleUnspecifiedError());
+      }
+      this.allListings = listings;
+      this.filteredListings.addAll(listings);
+      this.state = ListingsState.Retrieved;
+    }).timeout(const Duration(seconds: 10), onTimeout: _handleTimeoutException
+    ).catchError((error) => _handleUnspecifiedError());
+  }
+
+  void filterListings() {
+    this.state = ListingsState.Fetching;
+    var selectedGenreSet = Set<String>();
+    selectedGenreSet
+        .addAll(genreFilter.where((f) => f.isSelected).map((f) => f.name));
+    List<Listing> filtered = new List<Listing>();
+    filtered.addAll(allListings.where((l) =>
+    selectedGenreSet.intersection(l.genres.toSet()).length > 0 && this.listingTypeFilter.isActive(l.type)));
+    this.filteredListings = filtered;
+    this.state = ListingsState.Retrieved;
+  }
+
+  FutureOr<Null> _handleTimeoutException() {
     this.state = ListingsState.NetworkError;
     throw new Exception();
   }
 
-  void _handleUnspecifiedError() {
+  FutureOr<Null> _handleUnspecifiedError() {
     this.state = ListingsState.UnspecifiedError;
     throw new Exception();
+  }
+
+  void _filterUpdated() {
+    this.filterListings();
   }
 }

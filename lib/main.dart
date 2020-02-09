@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ondemand_overdrive/providers/AccountProvider.dart';
+import 'package:ondemand_overdrive/providers/ListingsProvider.dart';
 import 'package:ondemand_overdrive/screens/ListingsScreen.dart';
 import 'package:admob_flutter/admob_flutter.dart';
 import 'package:provider/provider.dart';
@@ -19,7 +20,9 @@ class OnDemandOverdrive extends StatelessWidget {
         ChangeNotifierProvider(
           create: (context) => AccountProvider(),
         ),
-
+        ChangeNotifierProvider(
+          create: (context) => ListingsProvider(),
+        )
       ],
       child: MaterialApp(
         title: 'On-Demand Overdrive',

@@ -31,7 +31,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
 
   void _getListingDetail() {
     setState(() {
-      _listingDetail = ListingsService.getDetail(widget.id);
+      //_listingDetail = ListingsService.getDetail(widget.id);
     });
   }
 
