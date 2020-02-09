@@ -1,35 +1,25 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:ondemand_overdrive/models/FilterList.dart';
+import 'package:ondemand_overdrive/providers/ListingsProvider.dart';
+import 'package:provider/provider.dart';
 
-class FilterDrawer extends StatefulWidget {
-  final List<String> genres;
-  final FilterList listingTypeFilter;
-  final FilterList genreFilter;
-
-  FilterDrawer({Key key, this.genres, this.listingTypeFilter, this.genreFilter}) : super(key: key);
-
-  @override
-  _FilterDrawerState createState() => _FilterDrawerState();
-}
-
-class _FilterDrawerState extends State<FilterDrawer> {
+class FilterDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return _buildDrawer();
-  }
-
-  Widget _buildDrawer() {
     const largerFontStyle = TextStyle(fontSize: 18);
     return Drawer(
-      child: CustomScrollView(slivers: <Widget>[
-        _buildDrawerHeaderSliver(largerFontStyle),
-        _buildListingTypeFilterHeaderSliver(),
-        _buildListingTypeFilterSliver(largerFontStyle),
-        _buildDividingSliver(),
-        _buildGenreFilterHeaderSliver(),
-        _buildGenreFilterSliver(largerFontStyle),
-      ])
+      child: Consumer<ListingsProvider>(
+        builder: (context, provider, child){
+          return CustomScrollView(slivers: <Widget>[
+            _buildDrawerHeaderSliver(largerFontStyle),
+            _buildListingTypeFilterHeaderSliver(provider),
+            _buildListingTypeFilterSliver(provider, largerFontStyle),
+            _buildDividingSliver(),
+            _buildGenreFilterHeaderSliver(provider),
+            _buildGenreFilterSliver(provider, largerFontStyle),
+          ]);
+        },
+      ),
     );
   }
 
@@ -50,7 +40,7 @@ class _FilterDrawerState extends State<FilterDrawer> {
     );
   }
 
-  Widget _buildListingTypeFilterHeaderSliver() {
+  Widget _buildListingTypeFilterHeaderSliver(ListingsProvider provider) {
     return SliverList(
       delegate: SliverChildListDelegate([
         CheckboxListTile(
@@ -62,16 +52,16 @@ class _FilterDrawerState extends State<FilterDrawer> {
               color: Colors.teal,
             ),
           ),
-          value: widget.listingTypeFilter.hasSelectedItems(),
+          value: provider.listingTypeFilter.hasSelectedItems(),
           onChanged: (bool checked) {
-            widget.listingTypeFilter.toggleAll(checked);
+            provider.listingTypeFilter.toggleAll(checked);
           },
         )
       ]),
     );
   }
 
-  Widget _buildGenreFilterHeaderSliver() {
+  Widget _buildGenreFilterHeaderSliver(ListingsProvider provider) {
     return SliverList(
       delegate: SliverChildListDelegate([
         CheckboxListTile(
@@ -83,9 +73,9 @@ class _FilterDrawerState extends State<FilterDrawer> {
               color: Colors.teal,
             ),
           ),
-          value: widget.genreFilter.hasSelectedItems(),
+          value: provider.genreFilter.hasSelectedItems(),
           onChanged: (bool checked) {
-            widget.genreFilter.toggleAll(checked);
+            provider.genreFilter.toggleAll(checked);
           },
         )
       ]),
@@ -98,39 +88,39 @@ class _FilterDrawerState extends State<FilterDrawer> {
     );
   }
 
-  Widget _buildGenreFilterSliver(TextStyle largerFontStyle) {
+  Widget _buildGenreFilterSliver(ListingsProvider provider, TextStyle largerFontStyle) {
     return SliverList(
       delegate: SliverChildBuilderDelegate((BuildContext context, int i) {
         return CheckboxListTile(
           title: Text(
-            widget.genreFilter[i].name,
+            provider.genreFilter[i].name,
             style: largerFontStyle,
           ),
-          value: widget.genreFilter[i].isSelected,
+          value: provider.genreFilter[i].isSelected,
           onChanged: (bool checked) {
-            widget.genreFilter[i].toggle(checked);
+            provider.genreFilter[i].toggle(checked);
           },
         );
-      }, childCount: widget.genreFilter.length),
+      }, childCount: provider.genreFilter.length),
     );
   }
 
-  Widget _buildListingTypeFilterSliver(TextStyle largerFontStyle) {
+  Widget _buildListingTypeFilterSliver(ListingsProvider provider, TextStyle largerFontStyle) {
     return SliverList(
       delegate: SliverChildBuilderDelegate((BuildContext context, int i) {
-        var label = widget.listingTypeFilter[i].name[0].toUpperCase() +
-            widget.listingTypeFilter[i].name.substring(1);
+        var label = provider.listingTypeFilter[i].name[0].toUpperCase() +
+            provider.listingTypeFilter[i].name.substring(1);
         return CheckboxListTile(
           title: Text(
             label,
             style: largerFontStyle,
           ),
-          value: widget.listingTypeFilter[i].isSelected,
+          value: provider.listingTypeFilter[i].isSelected,
           onChanged: (bool checked) {
-            this.widget.listingTypeFilter[i].toggle(checked);
+            provider.listingTypeFilter[i].toggle(checked);
           },
         );
-      }, childCount: widget.listingTypeFilter.length),
+      }, childCount: provider.listingTypeFilter.length),
     );
   }
 }

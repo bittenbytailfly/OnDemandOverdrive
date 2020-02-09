@@ -28,7 +28,7 @@ class ListingsService {
     }
   }
 
-  Future<ListingDetail> getDetail(BigInt id) async {
+  static Future<ListingDetail> getDetail(BigInt id) async {
     final response = await http.get('https://www.1024design.co.uk/api/odod/listing/' + id.toString());
 
     if (response.statusCode == 200){

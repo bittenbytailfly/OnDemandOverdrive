@@ -1,143 +1,55 @@
-import 'dart:async';
-
 import 'package:admob_flutter/admob_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:ondemand_overdrive/models/Listing.dart';
-import 'package:ondemand_overdrive/models/FilterList.dart';
+import 'package:ondemand_overdrive/providers/ListingsProvider.dart';
 import 'package:ondemand_overdrive/screens/FilterDrawer.dart';
 import 'package:ondemand_overdrive/screens/ListingDetailScreen.dart';
 import 'package:ondemand_overdrive/screens/MenuDrawer.dart';
-import 'package:ondemand_overdrive/services/ListingsService.dart';
-import 'package:ondemand_overdrive/widgets/NoConnectionNotification.dart';
+import 'package:provider/provider.dart';
 
-class ListingsScreen extends StatefulWidget {
-  ListingsScreen({Key key, this.title}) : super(key: key);
-
+class ListingsScreen extends StatelessWidget {
   final String title;
 
-  @override
-  _ListingPageState createState() => _ListingPageState();
-}
-
-class _ListingPageState extends State<ListingsScreen> {
-  List<Listing> _listings;
-  Future _filteredListings;
-  List<String> _genres;
-  FilterList _listingTypeFilter;
-  FilterList _genreFilter;
-  final listingsService = new ListingsService();
-
-  @override
-  void initState() {
-    super.initState();
-
-    _getListings();
-  }
-
-  void _getListings() {
-    Future.wait([listingsService.getGenres(), listingsService.getListings()])
-        .then((futures) {
-          this._genres = futures[0].cast<String>();
-          this._listings = futures[1].cast<Listing>();
-
-          // pre-populate all the filters
-          this._listingTypeFilter = new FilterList(['movie', 'series']);
-          this._genreFilter = new FilterList(_genres);
-
-          this._genreFilter.addListener(_updateListings);
-          this._listingTypeFilter.addListener(_updateListings);
-
-          this._updateListings();
-        })
-        .timeout(const Duration(seconds: 10), onTimeout: _filterListingsError)
-        .catchError((error) => _filterListingsError());
-  }
-
-  Future _refreshListings() async {
-    setState(() {
-      this._filteredListings = new Future(() {
-        listingsService
-            .getListings()
-            .then((listings) {
-              this._listings = listings.cast<Listing>();
-              _updateListings();
-            })
-            .timeout(const Duration(seconds: 10),
-                onTimeout: _filterListingsError)
-            .catchError((error) => _filterListingsError());
-      });
-    });
-  }
-
-  void _updateListings() {
-    setState(() {
-      _filteredListings = _filterListings();
-    });
-  }
-
-  //Ensures the "unable to load data" message appears
-  FutureOr<Null> _filterListingsError() async {
-    setState(() {
-      _filteredListings = new Future(() => throw new Exception());
-    });
-  }
-
-  Future _filterListings() async {
-    var selectedGenreSet = Set<String>();
-    selectedGenreSet
-        .addAll(_genreFilter.where((f) => f.isSelected).map((f) => f.name));
-    List<Listing> filtered = new List<Listing>();
-    filtered.addAll(_listings.where((l) =>
-        selectedGenreSet.intersection(l.genres.toSet()).length > 0 &&
-        this._listingTypeFilter.isActive(l.type)));
-    return filtered;
-  }
+  ListingsScreen({Key key, this.title}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text(this.title),
         automaticallyImplyLeading: true,
-        actions: <Widget>[
-          Container()
-        ],
+        actions: <Widget>[Container()],
       ),
       body: _buildListings(),
       drawer: MenuDrawer(),
-      endDrawer: FilterDrawer(
-          genres: this._genres,
-          listingTypeFilter: this._listingTypeFilter,
-          genreFilter: this._genreFilter),
+      endDrawer: FilterDrawer(),
     );
   }
 
   Widget _buildListings() {
-    return RefreshIndicator(
-      onRefresh: _refreshListings,
-      displacement: 20.0,
-      child: Container(
-          child: FutureBuilder(
-              future: _filteredListings,
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  return snapshot.data.length > 0
-                      ? _buildResultWidget(snapshot.data)
-                      : _buildNoResultsWidget();
-                } else if (snapshot.hasError) {
-                  return NoConnectionNotification(
-                    onRefresh: () => _getListings(),
-                  );
-                }
-                return _buildLoadingIndicator();
-              })),
-    );
+    return Consumer<ListingsProvider>(builder: (context, listingsProvider, child) {
+      return Container(child: Builder(builder: (context) {
+        switch (listingsProvider.state) {
+          case ListingsState.Fetching:
+            return _buildLoadingIndicator();
+          case ListingsState.Retrieved:
+            return _buildResultWidget(listingsProvider.filteredListings);
+          case ListingsState.NetworkError:
+          case ListingsState.UnspecifiedError:
+          default:
+            return _buildNoResultsWidget();
+        }
+      }));
+    });
   }
 
   Widget _buildResultWidget(List<Listing> listings) {
+    if (listings.length == 0) {
+      return _buildNoResultsWidget();
+    }
     return OrientationBuilder(
       builder: (context, orientation) {
         List<Widget> slivers = _buildScrollView(listings.toList(), orientation);
@@ -148,8 +60,7 @@ class _ListingPageState extends State<ListingsScreen> {
     );
   }
 
-  SliverPadding _buildGridViewWidget(
-      Orientation orientation, List<Listing> listings) {
+  SliverPadding _buildGridViewWidget(Orientation orientation, List<Listing> listings) {
     return SliverPadding(
       padding: EdgeInsets.only(top: 16.0, bottom: 16.0, left: 8.0, right: 8.0),
       sliver: SliverGrid(
@@ -160,7 +71,7 @@ class _ListingPageState extends State<ListingsScreen> {
           mainAxisSpacing: 8,
         ),
         delegate: SliverChildBuilderDelegate((context, i) {
-          return _buildListing(listings[i]);
+          return _buildListing(context, listings[i]);
         }, childCount: listings.length),
       ),
     );
@@ -171,9 +82,7 @@ class _ListingPageState extends State<ListingsScreen> {
       delegate: SliverChildListDelegate([
         Center(
           child: AdmobBanner(
-            adUnitId: kReleaseMode
-                ? adUnitId
-                : 'ca-app-pub-3940256099942544/6300978111',
+            adUnitId: kReleaseMode ? adUnitId : 'ca-app-pub-3940256099942544/6300978111',
             adSize: bannerSize,
           ),
         ),
@@ -182,8 +91,16 @@ class _ListingPageState extends State<ListingsScreen> {
   }
 
   Widget _buildNoResultsWidget() {
-    return Container(
-        child: Center(child: Text('No results matching your search')));
+    return Column(
+      children: <Widget>[
+        FilterButton(),
+        Expanded(
+          child: Center(
+              child: Text('No results matching your search')
+          )
+        ),
+      ],
+    );
   }
 
   Widget _buildLoadingIndicator() {
@@ -194,7 +111,7 @@ class _ListingPageState extends State<ListingsScreen> {
     );
   }
 
-  Widget _buildListing(Listing listing) {
+  Widget _buildListing(BuildContext context, Listing listing) {
     return GestureDetector(
       child: Column(children: [
         Expanded(
@@ -216,8 +133,7 @@ class _ListingPageState extends State<ListingsScreen> {
                       image: NetworkImage(listing.image),
                       fit: BoxFit.fitHeight,
                       height: double.maxFinite,
-                      placeholder:
-                          AssetImage('assets/images/placeholder-trans.png'),
+                      placeholder: AssetImage('assets/images/placeholder-trans.png'),
                     ),
                   ),
                 ]),
@@ -235,11 +151,11 @@ class _ListingPageState extends State<ListingsScreen> {
               ),
             )),
       ]),
-      onTap: () => _pushListingDetailPage(listing.id),
+      onTap: () => _pushListingDetailPage(context, listing.id),
     );
   }
 
-  void _pushListingDetailPage(BigInt id) {
+  void _pushListingDetailPage(context, BigInt id) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (BuildContext context) {
@@ -251,51 +167,58 @@ class _ListingPageState extends State<ListingsScreen> {
     );
   }
 
-  List<Widget> _buildScrollView(
-      List<Listing> listings, Orientation orientation) {
+  List<Widget> _buildScrollView(List<Listing> listings, Orientation orientation) {
     List<Widget> widgets = <Widget>[];
 
     final listingsBeforeFirstAd = orientation == Orientation.landscape ? 4 : 6;
 
-    widgets.add(FilterButton());
-    widgets.add(_buildGridViewWidget(
-        orientation, listings.take(listingsBeforeFirstAd).toList()));
-    widgets.add(_buildAdMobBanner('ca-app-pub-1438831506348729/6805128414',
-        AdmobBannerSize.MEDIUM_RECTANGLE));
+    widgets.add(_buildFilterButtonSliver());
+    widgets.add(_buildGridViewWidget(orientation, listings.take(listingsBeforeFirstAd).toList()));
+    widgets.add(_buildAdMobBanner('ca-app-pub-1438831506348729/6805128414', AdmobBannerSize.MEDIUM_RECTANGLE));
     if (listings.length > listingsBeforeFirstAd) {
-      widgets.add(_buildGridViewWidget(
-          orientation, listings.skip(listingsBeforeFirstAd).toList()));
+      widgets.add(_buildGridViewWidget(orientation, listings.skip(listingsBeforeFirstAd).toList()));
     }
 
     return widgets;
+  }
+
+  Widget _buildFilterButtonSliver() {
+    return SliverList(
+      delegate: SliverChildListDelegate([
+        FilterButton(),
+      ])
+    );
   }
 }
 
 class FilterButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return SliverList(
-      delegate: SliverChildListDelegate([
-        Container(
-          height: 50.0,
-          decoration: BoxDecoration(
-            color: Colors.teal.shade700,
-            backgroundBlendMode: BlendMode.darken,
-          ),
-          child: Align(
-            alignment: Alignment.centerRight,
-            child: FlatButton.icon(
-              color: Colors.transparent,
-              label: Text(
-                'FILTER',
+    return Container(
+      height: 50.0,
+      decoration: BoxDecoration(
+        color: Colors.teal.shade700,
+        backgroundBlendMode: BlendMode.darken,
+      ),
+      child: Align(
+        alignment: Alignment.centerRight,
+        child: FlatButton.icon(
+          color: Colors.transparent,
+          label: Consumer<ListingsProvider>(
+            builder: (context, provider, child) {
+              final filterCount = provider.numberOfFiltersApplied == 0
+                ? ''
+                : ' (' + provider.numberOfFiltersApplied.toString() + ')';
+              return Text(
+                'FILTER$filterCount',
                 style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
-              ),
-              icon: Icon(Icons.filter_list),
-              onPressed: Scaffold.of(context).openEndDrawer,
-            ),
+              );
+            }
           ),
+          icon: Icon(Icons.filter_list),
+          onPressed: Scaffold.of(context).openEndDrawer,
         ),
-      ]),
+      ),
     );
   }
 }
