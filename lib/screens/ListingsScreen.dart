@@ -91,7 +91,16 @@ class ListingsScreen extends StatelessWidget {
   }
 
   Widget _buildNoResultsWidget() {
-    return Container(child: Center(child: Text('No results matching your search')));
+    return Column(
+      children: <Widget>[
+        FilterButton(),
+        Expanded(
+          child: Center(
+              child: Text('No results matching your search')
+          )
+        ),
+      ],
+    );
   }
 
   Widget _buildLoadingIndicator() {
@@ -163,7 +172,7 @@ class ListingsScreen extends StatelessWidget {
 
     final listingsBeforeFirstAd = orientation == Orientation.landscape ? 4 : 6;
 
-    widgets.add(FilterButton());
+    widgets.add(_buildFilterButtonSliver());
     widgets.add(_buildGridViewWidget(orientation, listings.take(listingsBeforeFirstAd).toList()));
     widgets.add(_buildAdMobBanner('ca-app-pub-1438831506348729/6805128414', AdmobBannerSize.MEDIUM_RECTANGLE));
     if (listings.length > listingsBeforeFirstAd) {
@@ -172,33 +181,37 @@ class ListingsScreen extends StatelessWidget {
 
     return widgets;
   }
+
+  Widget _buildFilterButtonSliver() {
+    return SliverList(
+      delegate: SliverChildListDelegate([
+        FilterButton(),
+      ])
+    );
+  }
 }
 
 class FilterButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return SliverList(
-      delegate: SliverChildListDelegate([
-        Container(
-          height: 50.0,
-          decoration: BoxDecoration(
-            color: Colors.teal.shade700,
-            backgroundBlendMode: BlendMode.darken,
+    return Container(
+      height: 50.0,
+      decoration: BoxDecoration(
+        color: Colors.teal.shade700,
+        backgroundBlendMode: BlendMode.darken,
+      ),
+      child: Align(
+        alignment: Alignment.centerRight,
+        child: FlatButton.icon(
+          color: Colors.transparent,
+          label: Text(
+            'FILTER',
+            style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
           ),
-          child: Align(
-            alignment: Alignment.centerRight,
-            child: FlatButton.icon(
-              color: Colors.transparent,
-              label: Text(
-                'FILTER',
-                style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
-              ),
-              icon: Icon(Icons.filter_list),
-              onPressed: Scaffold.of(context).openEndDrawer,
-            ),
-          ),
+          icon: Icon(Icons.filter_list),
+          onPressed: Scaffold.of(context).openEndDrawer,
         ),
-      ]),
+      ),
     );
   }
 }
