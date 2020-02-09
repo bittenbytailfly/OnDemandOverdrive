@@ -70,15 +70,19 @@ class AccountProvider extends ChangeNotifier {
       this._subscriptions = subscriptions;
       this.subscriptionState = SubscriptionState.Retrieved;
     }).timeout(const Duration(seconds: 10), onTimeout: _handleSubscriptionTimeout)
-    .catchError(_handleSubscriptionError)
-    ;
+    .catchError(_handleSubscriptionError);
   }
 
-  void registerSubscription(int subscriptionTypeId, String value) {
+  Future<bool> registerSubscription(int subscriptionTypeId, String value) async {
     this.subscriptionState = SubscriptionState.Fetching;
-    this._subscriptionService.registerNewSubscription(this.user, subscriptionTypeId, value).then((_) {
+    try {
+      await this._subscriptionService.registerNewSubscription(this.user, subscriptionTypeId, value);
       this.getSubscriptions();
-    });
+      return true;
+    }
+    catch (_) {
+      return false;
+    }
   }
 
   Future<void> deleteSubscription(String id) async {

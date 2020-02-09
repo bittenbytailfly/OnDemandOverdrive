@@ -36,103 +36,123 @@ class _NewSubscriptionScreenState extends State<NewSubscriptionScreen> {
   Widget _buildAdditionForm(){
     final _formKey = GlobalKey<FormState>();
 
-    return Form(
-      key: _formKey,
-      child: ListView(
-        padding: EdgeInsets.all(8.0),
-        children: [
-          DropdownButtonFormField<SubscriptionType>(
-            decoration: InputDecoration(
-              labelText: 'Notification Type',
-            ),
-            value: _selectedSubscriptionType,
-            items: this._subscriptionTypes.map((SubscriptionType subType) {
-              return new DropdownMenuItem<SubscriptionType>(
-                value: subType,
-                child: Row(
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.only(right: 8.0),
-                      child: Icon(subType.icon,
-                        color: Colors.teal,
-                      ),
-                    ),
-                    Text(subType.name),
-                  ],
+    return Builder(
+      builder: (context) {
+        return Form(
+          key: _formKey,
+          child: ListView(
+            padding: EdgeInsets.all(8.0),
+            children: [
+              DropdownButtonFormField<SubscriptionType>(
+                decoration: InputDecoration(
+                  labelText: 'Notification Type',
                 ),
-              );
-            }).toList(),
-            onChanged: (value) {
-              setState(() {
-                _selectedSubscriptionType = value;
-              });
-            },
-          ),
-          TypeAheadFormField(
-            textFieldConfiguration: TextFieldConfiguration(
-              controller: this._subscriptionValueController,
-              decoration: InputDecoration(
-                labelText: this._selectedSubscriptionType.label,
-                hintText: this._selectedSubscriptionType.example,
-              ),
-              textCapitalization: TextCapitalization.words,
-            ),
-            hideOnEmpty: false,
-            hideOnLoading: true,
-            hideOnError: true,
-            noItemsFoundBuilder: (context) => ListTile(
-                title: Text('No matching names found in the database, but you can still add a subscription for future occurrences')
-            ),
-            suggestionsCallback: (term) {
-              if (term != null && term.length <= 2) {
-                return null;
-              }
-              return this._selectedSubscriptionType.id == 1
-                ? SubscriptionService.getActors(term)
-                : SubscriptionService.getDirectors(term);
-            },
-            itemBuilder: (context, suggestion) {
-              return ListTile(
-                title: Text(suggestion),
-              );
-            },
-            transitionBuilder: (context, suggestionsBox, controller) {
-              return suggestionsBox;
-            },
-            onSuggestionSelected: (suggestion) {
-              this._subscriptionValueController.text = suggestion;
-            },
-            validator: (value) {
-              if (value.isEmpty) {
-                return 'Please enter a name';
-              }
-              return null;
-            },
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 16.0),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Consumer<AccountProvider>(
-                builder: (consumer, account, child){
-                  return RaisedButton(
-                    child: Text(this._adding ? 'Adding ...' : 'Add'),
-                    onPressed: this._adding ? null :  () {
-                      if (_formKey.currentState.validate()) {
-                        setState(() {
-                          _adding = true;
-                        });
-                        account.registerSubscription(this._selectedSubscriptionType.id, this._subscriptionValueController.text);
-                        Navigator.pop(context, this._subscriptionValueController.text);
-                      }
-                    },
+                value: _selectedSubscriptionType,
+                items: this._subscriptionTypes.map((SubscriptionType subType) {
+                  return new DropdownMenuItem<SubscriptionType>(
+                    value: subType,
+                    child: Row(
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.only(right: 8.0),
+                          child: Icon(subType.icon,
+                            color: Colors.teal,
+                          ),
+                        ),
+                        Text(subType.name),
+                      ],
+                    ),
                   );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    _selectedSubscriptionType = value;
+                  });
                 },
               ),
-            ),
+              TypeAheadFormField(
+                textFieldConfiguration: TextFieldConfiguration(
+                  controller: this._subscriptionValueController,
+                  decoration: InputDecoration(
+                    labelText: this._selectedSubscriptionType.label,
+                    hintText: this._selectedSubscriptionType.example,
+                  ),
+                  textCapitalization: TextCapitalization.words,
+                ),
+                hideOnEmpty: false,
+                hideOnLoading: true,
+                hideOnError: true,
+                noItemsFoundBuilder: (context) => ListTile(
+                    title: Text('No matching names found in the database, but you can still add a subscription for future occurrences')
+                ),
+                suggestionsCallback: (term) {
+                  if (term != null && term.length <= 2) {
+                    return null;
+                  }
+                  return this._selectedSubscriptionType.id == 1
+                      ? SubscriptionService.getActors(term)
+                      : SubscriptionService.getDirectors(term);
+                },
+                itemBuilder: (context, suggestion) {
+                  return ListTile(
+                    title: Text(suggestion),
+                  );
+                },
+                transitionBuilder: (context, suggestionsBox, controller) {
+                  return suggestionsBox;
+                },
+                onSuggestionSelected: (suggestion) {
+                  this._subscriptionValueController.text = suggestion;
+                },
+                validator: (value) {
+                  if (value.isEmpty) {
+                    return 'Please enter a name';
+                  }
+                  return null;
+                },
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 16.0),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Consumer<AccountProvider>(
+                    builder: (consumer, account, child){
+                      return RaisedButton(
+                        child: Text(this._adding ? 'Adding ...' : 'Add'),
+                        onPressed: this._adding ? null :  () {
+                          if (_formKey.currentState.validate()) {
+                            setState(() {
+                              _adding = true;
+                            });
+                            account.registerSubscription(this._selectedSubscriptionType.id, this._subscriptionValueController.text).then((successfullyAdded) {
+                              if (successfullyAdded) {
+                                Navigator.pop(context, this._subscriptionValueController.text);
+                              }
+                              else {
+                                Scaffold.of(context)
+                                  ..hideCurrentSnackBar()
+                                  ..showSnackBar(SnackBar(
+                                    content: Text('Something went wrong - please try again later.'),
+                                  ));
+                              }
+                            }).whenComplete(() {
+                              setState(() {
+                                _adding = false;
+                              });
+                            });
+                          }
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
+
+
   }
 }
