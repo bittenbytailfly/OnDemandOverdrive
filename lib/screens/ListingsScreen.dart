@@ -25,14 +25,8 @@ class ListingsScreen extends StatelessWidget {
       ),
       body: _buildListings(),
       drawer: MenuDrawer(),
-      endDrawer: _buildFilterDrawer(),
+      endDrawer: FilterDrawer(),
     );
-  }
-
-  Widget _buildFilterDrawer() {
-    return Consumer<ListingsProvider>(builder: (context, listingsProvider, child) {
-      return FilterDrawer(genres: listingsProvider.genres, listingTypeFilter: listingsProvider.listingTypeFilter, genreFilter: listingsProvider.genreFilter);
-    });
   }
 
   Widget _buildListings() {
