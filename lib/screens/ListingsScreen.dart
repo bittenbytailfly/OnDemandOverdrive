@@ -200,24 +200,31 @@ class FilterButton extends StatelessWidget {
         color: Colors.teal.shade700,
         backgroundBlendMode: BlendMode.darken,
       ),
-      child: Align(
-        alignment: Alignment.centerRight,
-        child: FlatButton.icon(
-          color: Colors.transparent,
-          label: Consumer<ListingsProvider>(
-            builder: (context, provider, child) {
-              final filterCount = provider.numberOfFiltersApplied == 0
-                ? ''
-                : ' (' + provider.numberOfFiltersApplied.toString() + ')';
-              return Text(
-                'FILTER$filterCount',
-                style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
-              );
-            }
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: <Widget>[
+          FlatButton.icon(
+            color: Colors.transparent,
+            label: Text('REFRESH'),
+            icon: Icon(Icons.refresh),
+            onPressed: Provider.of<ListingsProvider>(context).getListings,
           ),
-          icon: Icon(Icons.filter_list),
-          onPressed: Scaffold.of(context).openEndDrawer,
-        ),
+          FlatButton.icon(
+            color: Colors.transparent,
+            label: Consumer<ListingsProvider>(
+              builder: (context, provider, child) {
+                final filterCount = provider.numberOfFiltersApplied == 0
+                  ? ''
+                  : ' (' + provider.numberOfFiltersApplied.toString() + ')';
+                return Text(
+                  'FILTER$filterCount',
+                );
+              }
+            ),
+            icon: Icon(Icons.filter_list),
+            onPressed: Scaffold.of(context).openEndDrawer,
+          ),
+        ],
       ),
     );
   }

@@ -32,11 +32,22 @@ class FirebaseUserService {
     return getCurrentUser();
   }
 
-  Future<void> signOut() async {
+  Future<void> signOut(FirebaseUser user) async {
+    var userToken = await user.getIdToken();
+    var fcmToken = await _fcm.getToken();
+
     await Future.wait([
       _auth.signOut(),
       _googleSignIn.signOut()
     ]);
+
+    var tokenMap = new Map<String, dynamic>();
+    tokenMap['userToken'] = userToken.token;
+    tokenMap['fcmToken'] = fcmToken;
+
+    await http.post('https://www.1024design.co.uk/api/odod/signout',
+        body: tokenMap
+    );
   }
 
   Future<void> _registerUser(FirebaseUser user) async {

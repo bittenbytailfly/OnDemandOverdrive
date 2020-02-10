@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:ondemand_overdrive/models/SubscriptionType.dart';
 import 'package:ondemand_overdrive/providers/AccountProvider.dart';
 import 'package:ondemand_overdrive/services/SubscriptionService.dart';
+import 'package:ondemand_overdrive/widgets/NoConnectionNotification.dart';
 import 'package:provider/provider.dart';
-import 'NewNotificationScreen.dart';
+import 'NewSubscriptionScreen.dart';
 import 'package:ondemand_overdrive/models/Subscription.dart';
 
 class SubscriptionsScreen extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -62,6 +64,14 @@ class SubscriptionsScreen extends StatelessWidget {
             );
           case AuthState.SignedIn:
             return SubscriptionList();
+          case AuthState.Error:
+              Scaffold.of(context)
+                ..removeCurrentSnackBar()
+                ..showSnackBar(SnackBar(
+                  content: Text('Something went wrong - please try again later'),
+                ));
+              Navigator.pop(context);
+              return null;
           default:
             throw new Exception('Argument out of range');
         }
@@ -87,32 +97,63 @@ class SubscriptionList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<AccountProvider>(
       builder: (context, account, child) {
-        if (account.subscriptionState == SubscriptionState.Retrieved) {
-          if (account.subscriptions.length == 0) {
-            return Center(child: Text('You don\'t currently have any subscriptions.'));
-          }
-          return ListView.builder(
-            padding: EdgeInsets.only(bottom: 100.0),
-            itemCount: account.subscriptions.length,
-            itemBuilder: (context, index) {
-              Subscription sub = account.subscriptions[index];
-              return SubscriptionListTile(
-                subscription: sub,
-              );
-            });
+        switch (account.subscriptionState){
+          case SubscriptionState.Fetching:
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          case SubscriptionState.Retrieved:
+            if (account.subscriptions.length == 0) {
+              return Center(child: Text('You don\'t currently have any subscriptions.'));
+            }
+            return ListView.builder(
+              padding: EdgeInsets.only(bottom: 100.0),
+              itemCount: account.subscriptions.length,
+              itemBuilder: (context, index) {
+                Subscription sub = account.subscriptions[index];
+                return SubscriptionListTile(
+                  subscription: sub,
+                  onDeleted: (bool success) {
+                    _subscriptionDeleted(context, success, sub);
+                  },
+                );
+              });
+          case SubscriptionState.Error:
+            return NoConnectionNotification(
+              onRefresh: account.getSubscriptions,
+            );
+          default:
+            throw new Exception('Argument out of range');
         }
-        return Center(
-          child: CircularProgressIndicator(),
-        );
       },
     );
+  }
+
+  void _subscriptionDeleted(BuildContext context, bool success, Subscription sub) {
+    if (!success) {
+      Scaffold.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(
+          content: Text('Something went wrong - please try again later'),
+        )
+        );
+    }
+    else {
+      Scaffold.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(
+          content: Text('Deleted ' + sub.value),
+        )
+        );
+    }
   }
 }
 
 class SubscriptionListTile extends StatefulWidget {
   final Subscription subscription;
+  final void Function(bool success) onDeleted;
 
-  SubscriptionListTile({this.subscription});
+  SubscriptionListTile({this.subscription, this.onDeleted});
 
   @override
   _SubscriptionListTileState createState() => _SubscriptionListTileState();
@@ -154,18 +195,13 @@ class _SubscriptionListTileState extends State<SubscriptionListTile> {
           color: Colors.teal,
         ),
         onTap: () {
-          setState(() {
+          this.setState(() {
             this._deleting = true;
           });
-          account.deleteSubscription(widget.subscription.subscriptionId).then((_) {
+          account.deleteSubscription(widget.subscription).then((successfullyDeleted) {
+            widget.onDeleted(successfullyDeleted);
             setState(() {
               this._deleting = false;
-              final subName = widget.subscription.value;
-              Scaffold.of(context)
-                ..removeCurrentSnackBar()
-                ..showSnackBar(SnackBar(
-                  content: Text('Deleted $subName'),
-                ));
             });
           });
         },
