@@ -1,8 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:ondemand_overdrive/models/SubscriptionType.dart';
 import 'package:ondemand_overdrive/models/Subscription.dart';
