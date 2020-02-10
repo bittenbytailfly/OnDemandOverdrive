@@ -58,7 +58,7 @@ class AccountProvider extends ChangeNotifier {
 
   void signOut() {
     this.authState = AuthState.SigningIn;
-    this._firebaseUserService.signOut().then((_) {
+    this._firebaseUserService.signOut(user).then((_) {
       this.user = null;
     });
   }
@@ -85,13 +85,18 @@ class AccountProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> deleteSubscription(String id) async {
-    this._subscriptionService.deleteSubscription(this.user, id).then((_){
+  Future<bool> deleteSubscription(Subscription sub) async {
+    try {
+      await this._subscriptionService.deleteSubscription(this.user, sub.subscriptionId);
       final updatedSubs = List<Subscription>.from(this._subscriptions);
-      updatedSubs.removeWhere((sub) => sub.subscriptionId == id);
+      updatedSubs.removeWhere((d) => d.subscriptionId == sub.subscriptionId);
       this._subscriptions = updatedSubs;
       notifyListeners();
-    });
+      return true;
+    }
+    catch (_) {
+      return false;
+    }
   }
 
   FutureOr<Null> _handleSubscriptionError(Object error) async {

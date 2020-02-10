@@ -28,7 +28,7 @@ class SubscriptionService {
     var subscriptionMap = new Map<String, dynamic>();
     subscriptionMap['subscriptionType'] = subscriptionTypeId.toString();
     subscriptionMap['value'] = subscriptionValue;
-    final response = await http.post('https://www.1024design.co.uk/api/odod/subscrijptions',
+    final response = await http.post('https://www.1024design.co.uk/api/odod/subscriptions',
         headers: {HttpHeaders.authorizationHeader: "Bearer $plainTextToken"},
         body: subscriptionMap);
 

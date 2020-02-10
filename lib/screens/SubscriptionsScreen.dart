@@ -8,6 +8,7 @@ import 'NewSubscriptionScreen.dart';
 import 'package:ondemand_overdrive/models/Subscription.dart';
 
 class SubscriptionsScreen extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -112,6 +113,9 @@ class SubscriptionList extends StatelessWidget {
                 Subscription sub = account.subscriptions[index];
                 return SubscriptionListTile(
                   subscription: sub,
+                  onDeleted: (bool success) {
+                    _subscriptionDeleted(context, success, sub);
+                  },
                 );
               });
           case SubscriptionState.Error:
@@ -124,12 +128,32 @@ class SubscriptionList extends StatelessWidget {
       },
     );
   }
+
+  void _subscriptionDeleted(BuildContext context, bool success, Subscription sub) {
+    if (!success) {
+      Scaffold.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(
+          content: Text('Something went wrong - please try again later'),
+        )
+        );
+    }
+    else {
+      Scaffold.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(
+          content: Text('Deleted ' + sub.value),
+        )
+        );
+    }
+  }
 }
 
 class SubscriptionListTile extends StatefulWidget {
   final Subscription subscription;
+  final void Function(bool success) onDeleted;
 
-  SubscriptionListTile({this.subscription});
+  SubscriptionListTile({this.subscription, this.onDeleted});
 
   @override
   _SubscriptionListTileState createState() => _SubscriptionListTileState();
@@ -171,19 +195,14 @@ class _SubscriptionListTileState extends State<SubscriptionListTile> {
           color: Colors.teal,
         ),
         onTap: () {
-          setState(() {
+          this.setState(() {
             this._deleting = true;
           });
-          account.deleteSubscription(widget.subscription.subscriptionId).then((_) {
+          account.deleteSubscription(widget.subscription).then((successfullyDeleted) {
+            widget.onDeleted(successfullyDeleted);
             setState(() {
               this._deleting = false;
             });
-            final subName = widget.subscription.value;
-            Scaffold.of(context)
-              ..removeCurrentSnackBar()
-              ..showSnackBar(SnackBar(
-                content: Text('Deleted $subName'),
-              ));
           });
         },
       );
