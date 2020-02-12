@@ -2,12 +2,14 @@ import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:ondemand_overdrive/models/SubscriberListing.dart';
 import 'package:ondemand_overdrive/models/Subscription.dart';
 import 'package:ondemand_overdrive/services/FirebaseUserService.dart';
 import 'package:ondemand_overdrive/services/SubscriptionService.dart';
 
 enum AuthState { NotSignedIn, SigningIn, SignedIn, Error }
 enum SubscriptionState { Fetching, Retrieved, Error }
+enum SubscriberListingsState { Fetching, Retrieved, Error }
 
 class AccountProvider extends ChangeNotifier {
   final FirebaseUserService _firebaseUserService = new FirebaseUserService();
@@ -39,8 +41,18 @@ class AccountProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  SubscriberListingsState _subscriberListingsState = SubscriberListingsState.Fetching;
+  SubscriberListingsState get subscriberListingsState => _subscriberListingsState;
+  set subscriberListingsState(SubscriberListingsState state) {
+    this._subscriberListingsState = state;
+    notifyListeners();
+  }
+
   List<Subscription> _subscriptions;
   List<Subscription> get subscriptions => _subscriptions;
+
+  List<SubscriberListing> _subscriberListings;
+  List<SubscriberListing> get subscriberListings => _subscriberListings;
 
   AccountProvider() {
     this._firebaseUserService.getCurrentUser().then((user){
@@ -71,6 +83,17 @@ class AccountProvider extends ChangeNotifier {
       this.subscriptionState = SubscriptionState.Retrieved;
     }).timeout(const Duration(seconds: 10), onTimeout: _handleSubscriptionTimeout)
     .catchError(_handleSubscriptionError);
+  }
+
+  void getSubscriberListings() {
+    this.subscriberListingsState = SubscriberListingsState.Fetching;
+    var user = this.user;
+
+    this._subscriptionService.getSubscriberListings(user).then((listings) {
+      this._subscriberListings = listings;
+      this.subscriberListingsState = SubscriberListingsState.Retrieved;
+    }).timeout(const Duration(seconds: 10), onTimeout: () => _handleSubscriberListingsError(null))
+    .catchError(_handleSubscriberListingsError);
   }
 
   Future<bool> registerSubscription(int subscriptionTypeId, String value) async {
@@ -107,6 +130,11 @@ class AccountProvider extends ChangeNotifier {
   FutureOr<Null> _handleSubscriptionTimeout() {
     this.subscriptionState = SubscriptionState.Error;
     throw new Exception('Subscription timeout');
+  }
+
+  FutureOr<Null> _handleSubscriberListingsError(Object error) async {
+    this.subscriberListingsState = SubscriberListingsState.Error;
+    throw new Exception();
   }
 
   FutureOr<Null> _handleSignInError(Object error) async {

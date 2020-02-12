@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
+import 'package:ondemand_overdrive/models/SubscriberListing.dart';
 import 'package:ondemand_overdrive/models/SubscriptionType.dart';
 import 'package:ondemand_overdrive/models/Subscription.dart';
 
@@ -16,6 +17,20 @@ class SubscriptionService {
 
     if (response.statusCode == 200) {
       var data = jsonDecode(response.body).map<Subscription>((json) => Subscription.fromJson(json)).toList();
+      return data;
+    } else {
+      throw Exception();
+    }
+  }
+
+  Future<List<SubscriberListing>> getSubscriberListings(FirebaseUser user) async {
+    var userToken = await user.getIdToken();
+    var plainTextToken = userToken.token;
+    final response = await http.get('https://www.1024design.co.uk/api/odod/subscriber-listings',
+        headers: {HttpHeaders.authorizationHeader: "Bearer $plainTextToken"});
+
+    if (response.statusCode == 200) {
+      var data = jsonDecode(response.body).map<SubscriberListing>((json) => SubscriberListing.fromJson(json)).toList();
       return data;
     } else {
       throw Exception();
