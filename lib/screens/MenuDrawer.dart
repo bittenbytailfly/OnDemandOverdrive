@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ondemand_overdrive/providers/AccountProvider.dart';
+import 'package:ondemand_overdrive/screens/SubscriberListingsScreen.dart';
 import 'package:ondemand_overdrive/screens/SubscriptionsScreen.dart';
 import 'package:provider/provider.dart';
 
@@ -18,6 +19,15 @@ class MenuDrawer extends StatelessWidget {
               _pushSubscriptionScreen(context);
             },
           ),
+          ListTile(
+            leading: Icon(Icons.star),
+            title: Text('My Listings'),
+            subtitle: Text('Based on subscriptions'),
+            onTap: () {
+              Navigator.pop(context);
+              _pushSubscriberListingsScreen(context);
+            },
+          ),
           SignInButton(),
         ],
       ),
@@ -29,6 +39,17 @@ class MenuDrawer extends StatelessWidget {
       MaterialPageRoute<void>(
         builder: (BuildContext context) {
           return SubscriptionsScreen();
+        },
+      ),
+    );
+  }
+
+  void _pushSubscriberListingsScreen(context) {
+    Provider.of<AccountProvider>(context, listen: false).getSubscriberListings();
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (BuildContext context) {
+          return SubscriberListingsScreen();
         },
       ),
     );

@@ -86,6 +86,10 @@ class AccountProvider extends ChangeNotifier {
   }
 
   void getSubscriberListings() {
+    if (this.user == null){
+      return;
+    }
+
     this.subscriberListingsState = SubscriberListingsState.Fetching;
     var user = this.user;
 
