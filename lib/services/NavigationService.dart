@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:ondemand_overdrive/providers/AccountProvider.dart';
-import 'package:provider/provider.dart';
 
 class NavigationService {
   static final NavigationService _instance = NavigationService._internal();
   static const String SUBSCRIBER_LISTINGS = 'SubscriberListings';
+  static const String LISTINGS = '/';
 
   final GlobalKey<NavigatorState> navigatorKey = new GlobalKey<NavigatorState>();
 
@@ -13,14 +12,8 @@ class NavigationService {
   }
 
   Future<dynamic> navigateToSubscriberListings() {
-    return navigatorKey.currentState.pushNamedAndRemoveUntil(SUBSCRIBER_LISTINGS, ModalRoute.withName('/'));
+    return navigatorKey.currentState.pushNamedAndRemoveUntil(SUBSCRIBER_LISTINGS, ModalRoute.withName(LISTINGS));
   }
 
-  Future<dynamic> navigateTo(String routeName) {
-    return navigatorKey.currentState.pushNamedAndRemoveUntil(routeName, ModalRoute.withName('/'));
-  }
-
-
-
-  NavigationService._internal();
+   NavigationService._internal();
 }

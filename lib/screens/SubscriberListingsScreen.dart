@@ -84,9 +84,6 @@ class SubscriberListings extends StatelessWidget {
                 )
               ],
             );
-
-
-
           case SubscriberListingsState.Error:
             return NoConnectionNotification(
               onRefresh: account.getSubscriberListings,
