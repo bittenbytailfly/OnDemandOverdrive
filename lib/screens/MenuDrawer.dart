@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ondemand_overdrive/providers/AccountProvider.dart';
 import 'package:ondemand_overdrive/screens/SubscriberListingsScreen.dart';
 import 'package:ondemand_overdrive/screens/SubscriptionsScreen.dart';
+import 'package:ondemand_overdrive/services/NavigationService.dart';
 import 'package:provider/provider.dart';
 
 class MenuDrawer extends StatelessWidget {
@@ -45,14 +46,7 @@ class MenuDrawer extends StatelessWidget {
   }
 
   void _pushSubscriberListingsScreen(context) {
-    Provider.of<AccountProvider>(context, listen: false).getSubscriberListings();
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (BuildContext context) {
-          return SubscriberListingsScreen();
-        },
-      ),
-    );
+    NavigationService().navigateToSubscriberListings();
   }
 }
 

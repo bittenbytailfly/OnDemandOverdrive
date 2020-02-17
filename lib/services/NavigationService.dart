@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:ondemand_overdrive/providers/AccountProvider.dart';
+import 'package:provider/provider.dart';
 
 class NavigationService {
   static final NavigationService _instance = NavigationService._internal();
@@ -12,6 +14,10 @@ class NavigationService {
   }
 
   Future<dynamic> navigateToSubscriberListings() {
+    final accountProvider = Provider.of<AccountProvider>(navigatorKey.currentContext, listen: false);
+    if (accountProvider.user != null) {
+      accountProvider.getSubscriberListings();
+    }
     return navigatorKey.currentState.pushNamedAndRemoveUntil(SUBSCRIBER_LISTINGS, ModalRoute.withName(LISTINGS));
   }
 
