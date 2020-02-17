@@ -1,19 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:ondemand_overdrive/providers/AccountProvider.dart';
+import 'package:provider/provider.dart';
 
 class NavigationService {
-  static final NavigationService _singleton = NavigationService._internal();
-  String _lastNamedRoute = '';
+  static final NavigationService _instance = NavigationService._internal();
+  static const String SUBSCRIBER_LISTINGS = 'SubscriberListings';
 
   final GlobalKey<NavigatorState> navigatorKey = new GlobalKey<NavigatorState>();
 
   factory NavigationService() {
-    return _singleton;
+    return _instance;
+  }
+
+  Future<dynamic> navigateToSubscriberListings() {
+    return navigatorKey.currentState.pushNamedAndRemoveUntil(SUBSCRIBER_LISTINGS, ModalRoute.withName('/'));
   }
 
   Future<dynamic> navigateTo(String routeName) {
-    //TODO: figure out how not to push twice.
-    return navigatorKey.currentState.pushNamed(routeName).then((_) => _lastNamedRoute = routeName);
+    return navigatorKey.currentState.pushNamedAndRemoveUntil(routeName, ModalRoute.withName('/'));
   }
+
+
 
   NavigationService._internal();
 }
