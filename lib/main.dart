@@ -1,20 +1,66 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:ondemand_overdrive/providers/AccountProvider.dart';
 import 'package:ondemand_overdrive/providers/ListingsProvider.dart';
 import 'package:ondemand_overdrive/screens/ListingsScreen.dart';
 import 'package:admob_flutter/admob_flutter.dart';
+import 'package:ondemand_overdrive/screens/SubscriberListingsScreen.dart';
+import 'package:ondemand_overdrive/services/NavigationService.dart';
 import 'package:provider/provider.dart';
+
+
+
+void _handleNotificationClick(Map<String, dynamic> msg) async {
+  //(App in background)
+  // From Notification bar when user click notification we get this event.
+  // on this event navigate to a particular page.
+  switch (msg['data']['click_intent']) {
+    case "SHOW_NEW_RELEASE":
+      debugPrint("navigating from provider");
+      
+      break;
+    default:
+      break;
+  }
+}
+
+class MessagingSingleton {
+  static final MessagingSingleton _singleton = MessagingSingleton._internal();
+
+  factory MessagingSingleton() {
+    return _singleton;
+  }
+
+  MessagingSingleton._internal() {
+    FirebaseMessaging()
+      ..configure(
+        onMessage: (Map<String, dynamic> message) async {
+          print('on message $message');
+        },
+        onResume: (Map<String, dynamic> message) async {
+          print('Resuming!');
+          NavigationService().navigateTo('subscriberListings');
+        },
+        onLaunch: (Map<String, dynamic> message) async {
+          print('on launch $message');
+        },
+      );
+  }
+}
 
 void main(){
   WidgetsFlutterBinding.ensureInitialized();
   Admob.initialize('ca-app-pub-1438831506348729~8718003556');
   runApp(OnDemandOverdrive());
+  MessagingSingleton();
 }
 
 class OnDemandOverdrive extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+
+
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
@@ -22,7 +68,7 @@ class OnDemandOverdrive extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (context) => ListingsProvider(),
-        )
+        ),
       ],
       child: MaterialApp(
         title: 'On-Demand Overdrive',
@@ -53,6 +99,15 @@ class OnDemandOverdrive extends StatelessWidget {
           ),
         ),
         home: ListingsScreen(title: 'On Demand Overdrive'),
+        navigatorKey: NavigationService().navigatorKey,
+        onGenerateRoute: (routeSettings) {
+          switch (routeSettings.name) {
+            case 'subscriberListings':
+              return MaterialPageRoute(builder: (context) => SubscriberListingsScreen());
+            default:
+              return MaterialPageRoute(builder: (context) => ListingsScreen());
+          }
+        },
       ),
     );
   }

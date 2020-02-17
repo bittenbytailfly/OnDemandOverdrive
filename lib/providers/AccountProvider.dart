@@ -27,7 +27,7 @@ class AccountProvider extends ChangeNotifier {
         : AuthState.NotSignedIn;
   }
 
-  AuthState _authState;
+  AuthState _authState = AuthState.SigningIn;
   AuthState get authState => _authState;
   set authState(AuthState state) {
     this._authState = state;
