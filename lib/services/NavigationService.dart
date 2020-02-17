@@ -6,8 +6,9 @@ class NavigationService {
   static final NavigationService _instance = NavigationService._internal();
   static const String SUBSCRIBER_LISTINGS = 'SubscriberListings';
   static const String SUBSCRIPTIONS = 'Subscriptions';
+  static const String NEW_SUBSCRIPTION_SCREEN = 'NewSubscriptionScreen';
   static const String LISTINGS = '/';
-  static const String LISTINGDETAIL = 'ListingDetail';
+  static const String LISTING_DETAIL = 'ListingDetail';
 
   final GlobalKey<NavigatorState> navigatorKey = new GlobalKey<NavigatorState>();
 
@@ -16,7 +17,11 @@ class NavigationService {
   }
 
   Future<dynamic> navigateToListingDetailScreen(BigInt id) {
-    return navigatorKey.currentState.pushNamed(LISTINGDETAIL, arguments: { 'id': id });
+    return navigatorKey.currentState.pushNamed(LISTING_DETAIL, arguments: { 'id': id });
+  }
+
+  Future<dynamic> navigateToNewSubscriptionScreen() {
+    return navigatorKey.currentState.pushNamed(NEW_SUBSCRIPTION_SCREEN);
   }
 
   Future<dynamic> navigateToSubscriptionsScreen() {

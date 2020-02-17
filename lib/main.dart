@@ -4,6 +4,7 @@ import 'package:ondemand_overdrive/providers/ListingsProvider.dart';
 import 'package:ondemand_overdrive/screens/ListingDetailScreen.dart';
 import 'package:ondemand_overdrive/screens/ListingsScreen.dart';
 import 'package:admob_flutter/admob_flutter.dart';
+import 'package:ondemand_overdrive/screens/NewSubscriptionScreen.dart';
 import 'package:ondemand_overdrive/screens/SubscriberListingsScreen.dart';
 import 'package:ondemand_overdrive/screens/SubscriptionsScreen.dart';
 import 'package:ondemand_overdrive/services/FIrebaseMessagingService.dart';
@@ -72,7 +73,9 @@ class OnDemandOverdrive extends StatelessWidget {
               return MaterialPageRoute(builder: (context) => SubscriberListingsScreen());
             case NavigationService.SUBSCRIPTIONS:
               return MaterialPageRoute(builder: (context) => SubscriptionsScreen());
-            case NavigationService.LISTINGDETAIL:
+            case NavigationService.NEW_SUBSCRIPTION_SCREEN:
+              return MaterialPageRoute(builder: (context) => NewSubscriptionScreen());
+            case NavigationService.LISTING_DETAIL:
               return MaterialPageRoute(builder: (context) => ListingDetailScreen(id: arguments['id']));
             default:
               return MaterialPageRoute(builder: (context) => ListingsScreen());

@@ -97,13 +97,7 @@ class SubscriberListings extends StatelessWidget {
   }
 
   _pushSubscriptionScreen(context) {
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (BuildContext context) {
-          return SubscriptionsScreen();
-        },
-      ),
-    );
+    NavigationService().navigateToSubscriptionsScreen();
   }
 }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ondemand_overdrive/models/SubscriptionType.dart';
 import 'package:ondemand_overdrive/providers/AccountProvider.dart';
+import 'package:ondemand_overdrive/services/NavigationService.dart';
 import 'package:ondemand_overdrive/services/SubscriptionService.dart';
 import 'package:ondemand_overdrive/widgets/NoConnectionNotification.dart';
 import 'package:provider/provider.dart';
@@ -80,7 +81,7 @@ class SubscriptionsScreen extends StatelessWidget {
   }
 
   void _pushAddNotificationPage(context) {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => NewSubscriptionScreen())).then((result) {
+    NavigationService().navigateToNewSubscriptionScreen().then((result) {
       if (result != null && result.length > 0) {
         Scaffold.of(context)
           ..removeCurrentSnackBar()
