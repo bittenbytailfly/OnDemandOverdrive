@@ -7,11 +7,16 @@ class NavigationService {
   static const String SUBSCRIBER_LISTINGS = 'SubscriberListings';
   static const String SUBSCRIPTIONS = 'Subscriptions';
   static const String LISTINGS = '/';
+  static const String LISTINGDETAIL = 'ListingDetail';
 
   final GlobalKey<NavigatorState> navigatorKey = new GlobalKey<NavigatorState>();
 
   factory NavigationService() {
     return _instance;
+  }
+
+  Future<dynamic> navigateToListingDetailScreen(BigInt id) {
+    return navigatorKey.currentState.pushNamed(LISTINGDETAIL, arguments: { 'id': id });
   }
 
   Future<dynamic> navigateToSubscriptionsScreen() {

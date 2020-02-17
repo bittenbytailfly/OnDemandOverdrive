@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:ondemand_overdrive/models/SubscriberListing.dart';
 import 'package:ondemand_overdrive/providers/AccountProvider.dart';
+import 'package:ondemand_overdrive/services/NavigationService.dart';
 import 'package:ondemand_overdrive/widgets/NoConnectionNotification.dart';
 import 'package:ondemand_overdrive/widgets/SubscriptionServicesSignIn.dart';
 import 'package:provider/provider.dart';
@@ -160,14 +161,6 @@ class SubscriberListingTile extends StatelessWidget {
   }
 
   _pushListingDetailPage(context, SubscriberListing listing) {
-      Navigator.of(context).push(
-        MaterialPageRoute<void>(
-          builder: (BuildContext context) {
-            return Scaffold(
-              body: ListingDetailScreen(id: listing.id),
-            );
-          },
-        ),
-      );
+      NavigationService().navigateToListingDetailScreen(listing.id);
   }
 }

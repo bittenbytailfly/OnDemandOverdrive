@@ -37,23 +37,25 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<ListingDetail>(
-        future: this._listingDetail,
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            return _buildDetailScreen(snapshot.data, context);
-          }
-          else if (snapshot.hasError || snapshot.connectionState == ConnectionState.none) {
-            return NoConnectionNotification(
-              onRefresh: () => _getListingDetail(),
+    return Scaffold(
+      body: FutureBuilder<ListingDetail>(
+          future: this._listingDetail,
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              return _buildDetailScreen(snapshot.data, context);
+            }
+            else if (snapshot.hasError || snapshot.connectionState == ConnectionState.none) {
+              return NoConnectionNotification(
+                onRefresh: () => _getListingDetail(),
+              );
+            }
+            return Container(
+              child: Center(
+                child: CircularProgressIndicator(),
+              ),
             );
-          }
-          return Container(
-            child: Center(
-              child: CircularProgressIndicator(),
-            ),
-          );
-        });
+          }),
+    );
   }
 
   Widget _buildDetailScreen(ListingDetail listing, BuildContext context) {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ondemand_overdrive/providers/AccountProvider.dart';
 import 'package:ondemand_overdrive/providers/ListingsProvider.dart';
+import 'package:ondemand_overdrive/screens/ListingDetailScreen.dart';
 import 'package:ondemand_overdrive/screens/ListingsScreen.dart';
 import 'package:admob_flutter/admob_flutter.dart';
 import 'package:ondemand_overdrive/screens/SubscriberListingsScreen.dart';
@@ -65,11 +66,14 @@ class OnDemandOverdrive extends StatelessWidget {
         navigatorKey: NavigationService().navigatorKey,
         initialRoute: '/',
         onGenerateRoute: (routeSettings) {
+          final Map arguments = routeSettings.arguments as Map;
           switch (routeSettings.name) {
             case NavigationService.SUBSCRIBER_LISTINGS:
               return MaterialPageRoute(builder: (context) => SubscriberListingsScreen());
             case NavigationService.SUBSCRIPTIONS:
               return MaterialPageRoute(builder: (context) => SubscriptionsScreen());
+            case NavigationService.LISTINGDETAIL:
+              return MaterialPageRoute(builder: (context) => ListingDetailScreen(id: arguments['id']));
             default:
               return MaterialPageRoute(builder: (context) => ListingsScreen());
           }
