@@ -20,7 +20,7 @@ class FirebaseMessagingService {
       ..configure(onResume: (Map<String, dynamic> msg) async {
         switch (msg['data']['click_intent']) {
           case "SHOW_NEW_RELEASE":
-            NavigationService().navigateToSubscriberListings();
+            NavigationService().navigateToSubscriberListingsScreen();
             break;
           default:
             break;

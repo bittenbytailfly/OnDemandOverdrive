@@ -19,9 +19,6 @@ class AccountProvider extends ChangeNotifier {
   FirebaseUser get user => _user;
   set user(FirebaseUser user) {
     this._user = user;
-    if (user != null) {
-      this.getSubscriptions();
-    }
     this.authState = user != null
         ? AuthState.SignedIn
         : AuthState.NotSignedIn;

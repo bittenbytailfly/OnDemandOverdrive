@@ -36,17 +36,11 @@ class MenuDrawer extends StatelessWidget {
   }
 
   void _pushSubscriptionScreen(context) {
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (BuildContext context) {
-          return SubscriptionsScreen();
-        },
-      ),
-    );
+    NavigationService().navigateToSubscriptionsScreen();
   }
 
   void _pushSubscriberListingsScreen(context) {
-    NavigationService().navigateToSubscriberListings();
+    NavigationService().navigateToSubscriberListingsScreen();
   }
 }
 
