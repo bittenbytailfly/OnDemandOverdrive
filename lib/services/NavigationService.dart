@@ -26,7 +26,7 @@ class NavigationService {
 
   Future<dynamic> navigateToSubscriptionsScreen() {
     final accountProvider = Provider.of<AccountProvider>(navigatorKey.currentContext, listen: false);
-    if (accountProvider.authState == AuthState.SignedIn) {
+    if (accountProvider.user != null) {
       accountProvider.getSubscriptions();
     }
     return navigatorKey.currentState.pushNamed(SUBSCRIPTIONS);

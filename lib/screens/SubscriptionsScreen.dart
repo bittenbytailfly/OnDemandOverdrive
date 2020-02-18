@@ -4,8 +4,8 @@ import 'package:ondemand_overdrive/providers/AccountProvider.dart';
 import 'package:ondemand_overdrive/services/NavigationService.dart';
 import 'package:ondemand_overdrive/services/SubscriptionService.dart';
 import 'package:ondemand_overdrive/widgets/NoConnectionNotification.dart';
+import 'package:ondemand_overdrive/widgets/SubscriptionServicesSignIn.dart';
 import 'package:provider/provider.dart';
-import 'NewSubscriptionScreen.dart';
 import 'package:ondemand_overdrive/models/Subscription.dart';
 
 class SubscriptionsScreen extends StatelessWidget {
@@ -30,53 +30,10 @@ class SubscriptionsScreen extends StatelessWidget {
           );
         },
       ),
-      body: _buildSubscriptionBody(),
-    );
-  }
-
-  Widget _buildSubscriptionBody() {
-    return Consumer<AccountProvider>(
-      builder: (context, account, child) {
-        switch (account.authState) {
-          case AuthState.NotSignedIn:
-            return Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    'Sign in to subscribe to notifications when a title is added from a director/actor you follow.',
-                    textAlign: TextAlign.center,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: RaisedButton(
-                      child: Text('Sign In'),
-                      onPressed: account.signIn,
-                    ),
-                  )
-                ],
-              ),
-            );
-          case AuthState.SigningIn:
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          case AuthState.SignedIn:
-            return SubscriptionList();
-          case AuthState.Error:
-              Scaffold.of(context)
-                ..removeCurrentSnackBar()
-                ..showSnackBar(SnackBar(
-                  content: Text('Something went wrong - please try again later'),
-                ));
-              Navigator.pop(context);
-              return null;
-          default:
-            throw new Exception('Argument out of range');
-        }
-      },
+      body: SubscriptionServicesSignIn(
+        signedInWidget: SubscriptionList(),
+        onSignedIn: Provider.of<AccountProvider>(context, listen: false).getSubscriptions,
+      ),
     );
   }
 

@@ -29,8 +29,7 @@ class SubscriptionServicesSignIn extends StatelessWidget {
                     child: RaisedButton(
                       child: Text('Sign In'),
                       onPressed: () {
-                        account.signIn();
-                        this.onSignedIn();
+                        account.signIn().then((user) => this.onSignedIn());
                       },
                     ),
                   )

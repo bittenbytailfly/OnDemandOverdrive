@@ -27,8 +27,10 @@ class AccountProvider extends ChangeNotifier {
   AuthState _authState = AuthState.SigningIn;
   AuthState get authState => _authState;
   set authState(AuthState state) {
-    this._authState = state;
-    notifyListeners();
+    if (this._authState != state) {
+      this._authState = state;
+      notifyListeners();
+    }
   }
 
   SubscriptionState _subscriptionState = SubscriptionState.Fetching;
@@ -57,12 +59,12 @@ class AccountProvider extends ChangeNotifier {
     });
   }
 
-  void signIn() {
+  Future<FirebaseUser> signIn() async {
     this.authState = AuthState.SigningIn;
-    this._firebaseUserService.signIn().then((user) {
-      this.user = user;
-    }).timeout(const Duration(seconds: 10), onTimeout: _handleSignInTimeout)
-    .catchError(_handleSignInError);
+    this.user = await this._firebaseUserService.signIn()
+        .timeout(const Duration(seconds: 10), onTimeout: _handleSignInTimeout)
+        .catchError(_handleSignInError);
+    return user;
   }
 
   void signOut() {
