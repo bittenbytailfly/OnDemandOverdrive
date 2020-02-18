@@ -36,15 +36,19 @@ class AccountProvider extends ChangeNotifier {
   SubscriptionState _subscriptionState = SubscriptionState.Fetching;
   SubscriptionState get subscriptionState => _subscriptionState;
   set subscriptionState(SubscriptionState state) {
-    this._subscriptionState = state;
-    notifyListeners();
+    if (this._subscriptionState != state) {
+      this._subscriptionState = state;
+      notifyListeners();
+    }
   }
 
   SubscriberListingsState _subscriberListingsState = SubscriberListingsState.Fetching;
   SubscriberListingsState get subscriberListingsState => _subscriberListingsState;
   set subscriberListingsState(SubscriberListingsState state) {
-    this._subscriberListingsState = state;
-    notifyListeners();
+    if (this._subscriberListingsState != state) {
+      this._subscriberListingsState = state;
+      notifyListeners();
+    }
   }
 
   List<Subscription> _subscriptions;
