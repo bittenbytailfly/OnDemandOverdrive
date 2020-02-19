@@ -53,37 +53,34 @@ class SubscriberListings extends StatelessWidget {
               );
             }
 
-            //TODO make this a custom scroll view.
-            return Column(
-              children: [
-                Padding(
-                  padding: EdgeInsets.only(top: 16.0, bottom: 16.0),
-                  child: Center(
-                    child: AdmobBanner(
-                      adUnitId: kReleaseMode ? 'ca-app-pub-1438831506348729/4587186852' : 'ca-app-pub-3940256099942544/6300978111',
-                      adSize: AdmobBannerSize.BANNER,
-                    ),
+
+            return CustomScrollView(
+                slivers: [
+                  SliverList(
+                    delegate: SliverChildListDelegate([
+                      Padding(
+                        padding: const EdgeInsets.only(top: 16.0, bottom: 8.0),
+                        child: Center(
+                          child: AdmobBanner(
+                            adUnitId: kReleaseMode ? 'ca-app-pub-1438831506348729/8524190143' : 'ca-app-pub-3940256099942544/6300978111',
+                            adSize: AdmobBannerSize.LARGE_BANNER,
+                          ),
+                        ),
+                      ),
+                    ]),
                   ),
-                ),
-                Expanded(
-                  child: ListView.separated(
-                    shrinkWrap: true,
-                      padding: EdgeInsets.all(16.0),
-                      itemCount: account.subscriberListings.length,
-                      separatorBuilder: (context, index) {
-                        return Divider(
-                          color: Colors.transparent,
-                          height: 16.0,
-                        );
-                      },
-                      itemBuilder: (context, index) {
-                        SubscriberListing listing = account.subscriberListings[index];
-                        return SubscriberListingTile(
-                          listing: listing,
-                        );
-                      }),
-                )
-              ],
+                  SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                        (BuildContext context, int index) {
+                          SubscriberListing listing = account.subscriberListings[index];
+                          return SubscriberListingTile(
+                            listing: listing,
+                          );
+                        },
+                      childCount: account.subscriberListings.length,
+                    ),
+                  )
+                ]
             );
           case SubscriberListingsState.Error:
             return NoConnectionNotification(
@@ -108,44 +105,47 @@ class SubscriberListingTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => _pushListingDetailPage(context, listing),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          FadeInImage(
-            image: NetworkImage(listing.coverImage),
-            fit: BoxFit.fitHeight,
-            height: 80.0,
-            placeholder: AssetImage('assets/images/placeholder-trans.png'),
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(listing.title,
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 2,
-                    style: TextStyle(
-                      fontSize: 18.0,
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: Text('added ${_formatDate(listing.dateAdded)}',
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: GestureDetector(
+        onTap: () => _pushListingDetailPage(context, listing),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            FadeInImage(
+              image: NetworkImage(listing.coverImage),
+              fit: BoxFit.fitHeight,
+              height: 80.0,
+              placeholder: AssetImage('assets/images/placeholder-trans.png'),
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(listing.title,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 2,
                       style: TextStyle(
-                        color: Colors.teal,
-                        fontStyle: FontStyle.italic
+                        fontSize: 18.0,
                       ),
                     ),
-                  ),
-                ]
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Text('added ${_formatDate(listing.dateAdded)}',
+                        style: TextStyle(
+                          color: Colors.teal,
+                          fontStyle: FontStyle.italic
+                        ),
+                      ),
+                    ),
+                  ]
+                ),
               ),
-            ),
-          )
-        ],
+            )
+          ],
+        ),
       ),
     );
   }
