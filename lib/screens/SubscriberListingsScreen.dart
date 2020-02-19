@@ -53,7 +53,6 @@ class SubscriberListings extends StatelessWidget {
               );
             }
 
-
             return CustomScrollView(
                 slivers: [
                   SliverList(
@@ -114,9 +113,9 @@ class SubscriberListingTile extends StatelessWidget {
           children: [
             FadeInImage(
               image: NetworkImage(listing.coverImage),
-              fit: BoxFit.fitHeight,
-              height: 80.0,
-              placeholder: AssetImage('assets/images/placeholder-trans.png'),
+              fit: BoxFit.fitWidth,
+              width: 150.0,
+              placeholder: AssetImage('assets/images/placeholder-landscape.png'),
             ),
             Expanded(
               child: Padding(
