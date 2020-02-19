@@ -8,6 +8,7 @@ import 'package:ondemand_overdrive/providers/ListingsProvider.dart';
 import 'package:ondemand_overdrive/screens/FilterDrawer.dart';
 import 'package:ondemand_overdrive/screens/ListingDetailScreen.dart';
 import 'package:ondemand_overdrive/screens/MenuDrawer.dart';
+import 'package:ondemand_overdrive/services/NavigationService.dart';
 import 'package:provider/provider.dart';
 
 class ListingsScreen extends StatelessWidget {
@@ -156,15 +157,7 @@ class ListingsScreen extends StatelessWidget {
   }
 
   void _pushListingDetailPage(context, BigInt id) {
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (BuildContext context) {
-          return Scaffold(
-            body: ListingDetailScreen(id: id),
-          );
-        },
-      ),
-    );
+    NavigationService().navigateToListingDetailScreen(id);
   }
 
   List<Widget> _buildScrollView(List<Listing> listings, Orientation orientation) {
