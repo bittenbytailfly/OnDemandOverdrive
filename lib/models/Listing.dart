@@ -12,11 +12,11 @@ class Listing {
   factory Listing.fromJson(Map<String, dynamic> json){
     var unescape = new HtmlUnescape();
     return Listing(
-      id: BigInt.parse(json['id'].toString()),
-      name: unescape.convert(json['title']),
-      image: json['image'],
-      type: json['type'],
-      genres: List.from(json['genres'])
+        id: BigInt.parse(json['id'].toString()),
+        name: unescape.convert(json['title']),
+        image: json['image'],
+        type: json['type'],
+        genres: List.from(json['genres'])
     );
   }
 }

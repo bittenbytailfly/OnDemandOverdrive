@@ -9,6 +9,7 @@ import 'package:ondemand_overdrive/screens/FilterDrawer.dart';
 import 'package:ondemand_overdrive/screens/ListingDetailScreen.dart';
 import 'package:ondemand_overdrive/screens/MenuDrawer.dart';
 import 'package:ondemand_overdrive/services/NavigationService.dart';
+import 'package:ondemand_overdrive/widgets/NoConnectionNotification.dart';
 import 'package:provider/provider.dart';
 
 class ListingsScreen extends StatelessWidget {
@@ -40,6 +41,9 @@ class ListingsScreen extends StatelessWidget {
             return _buildResultWidget(listingsProvider.filteredListings);
           case ListingsState.NetworkError:
           case ListingsState.UnspecifiedError:
+            return NoConnectionNotification(
+              onRefresh: () => listingsProvider.getListings(),
+            );
           default:
             return _buildNoResultsWidget();
         }
