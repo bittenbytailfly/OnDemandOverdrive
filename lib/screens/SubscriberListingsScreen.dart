@@ -1,4 +1,5 @@
 import 'package:admob_flutter/admob_flutter.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:ondemand_overdrive/models/SubscriberListing.dart';
@@ -7,6 +8,7 @@ import 'package:ondemand_overdrive/services/NavigationService.dart';
 import 'package:ondemand_overdrive/widgets/NoConnectionNotification.dart';
 import 'package:ondemand_overdrive/widgets/SubscriptionServicesSignIn.dart';
 import 'package:provider/provider.dart';
+import 'package:transparent_image/transparent_image.dart';
 import 'ListingDetailScreen.dart';
 import 'SubscriptionsScreen.dart';
 
@@ -111,13 +113,24 @@ class SubscriberListingTile extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            FadeInImage(
-              image: NetworkImage(listing.coverImage),
-              fit: BoxFit.fitWidth,
-              width: 150.0,
-              placeholder: AssetImage('assets/images/placeholder-landscape.png'),
+            Expanded(
+              flex: 1,
+              child: Stack(
+                children: [
+                  Image(
+                    image: AssetImage('assets/images/placeholder-landscape.png'),
+                    fit: BoxFit.contain,
+                  ),
+                  FadeInImage(
+                    image: NetworkImage(listing.coverImage),
+                    fit: BoxFit.contain,
+                    placeholder: MemoryImage(kTransparentImage),
+                  ),
+                ],
+              ),
             ),
             Expanded(
+              flex: 2,
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Column(
