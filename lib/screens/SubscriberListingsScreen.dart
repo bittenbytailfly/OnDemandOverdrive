@@ -33,6 +33,15 @@ class SubscriberListings extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<AccountProvider>(
       builder: (context, account, child) {
+
+        if (account.authState == AuthState.SignedIn && account.subscriberListingsState == SubscriberListingsState.Initialized) {
+          // User is signed in, but no listings have been loaded.
+          account.getSubscriberListings();
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+
         switch (account.subscriberListingsState){
           case SubscriberListingsState.Fetching:
             return Center(

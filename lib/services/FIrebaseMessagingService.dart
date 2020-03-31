@@ -17,15 +17,26 @@ class FirebaseMessagingService {
     }
 
     FirebaseMessaging()
-      ..configure(onResume: (Map<String, dynamic> msg) async {
-        switch (msg['data']['click_intent']) {
-          case "SHOW_NEW_RELEASE":
-            NavigationService().navigateToSubscriberListingsScreen();
-            break;
-          default:
-            break;
+      ..configure(
+        onResume: (Map<String, dynamic> msg) async {
+          switch (msg['data']['click_intent']) {
+            case "SHOW_NEW_RELEASE":
+              NavigationService().navigateToSubscriberListingsScreen();
+              break;
+            default:
+              break;
+          }
+        },
+        onLaunch: (Map<String, dynamic> msg) async {
+          switch (msg['data']['click_intent']) {
+            case "SHOW_NEW_RELEASE":
+              NavigationService().navigateToSubscriberListingsScreen();
+              break;
+            default:
+              break;
+          }
         }
-      });
+      );
     this._initialized = true;
   }
 }
