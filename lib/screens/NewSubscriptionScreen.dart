@@ -89,9 +89,16 @@ class _NewSubscriptionScreenState extends State<NewSubscriptionScreen> {
                   if (term != null && term.length <= 2) {
                     return null;
                   }
-                  return this._selectedSubscriptionType.id == 1
-                      ? SubscriptionService.getActors(term)
-                      : SubscriptionService.getDirectors(term);
+                  switch (this._selectedSubscriptionType.id){
+                    case SubscriptionType.ACTOR:
+                      return SubscriptionService.getActors(term);
+                    case SubscriptionType.DIRECTOR:
+                      return SubscriptionService.getDirectors(term);
+                    case SubscriptionType.NEW_EPISODE:
+                      return SubscriptionService.getNewEpisodes(term);
+                    default:
+                      return SubscriptionService.getTitle(term);
+                  }
                 },
                 itemBuilder: (context, suggestion) {
                   return ListTile(

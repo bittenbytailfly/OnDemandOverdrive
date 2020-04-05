@@ -85,6 +85,28 @@ class SubscriptionService {
     }
   }
 
+  static Future<List<String>> getTitle(String term) async {
+    final response = await http.get('https://www.1024design.co.uk/api/odod/titles/movies?term=$term');
+
+    if (response.statusCode == 200) {
+      var data = jsonDecode(response.body);
+      return data.cast<String>();
+    } else {
+      throw Exception();
+    }
+  }
+
+  static Future<List<String>> getNewEpisodes(String term) async {
+    final response = await http.get('https://www.1024design.co.uk/api/odod/titles/series?term=$term');
+
+    if (response.statusCode == 200) {
+      var data = jsonDecode(response.body);
+      return data.cast<String>();
+    } else {
+      throw Exception();
+    }
+  }
+
   static SubscriptionType getTypeById(int id){
     switch (id){
       case 1:
@@ -93,6 +115,8 @@ class SubscriptionService {
         return SubscriptionType.director();
       case 3:
         return SubscriptionType.title();
+      case 4:
+        return SubscriptionType.newEpisodes();
       default:
         throw new Exception('Invalid SubscriptionTypeId');
     }
@@ -102,7 +126,8 @@ class SubscriptionService {
     return <SubscriptionType>[
       SubscriptionType.actor(),
       SubscriptionType.director(),
-      //SubscriptionType.title(),
+      SubscriptionType.title(),
+      SubscriptionType.newEpisodes(),
     ];
   }
 }
