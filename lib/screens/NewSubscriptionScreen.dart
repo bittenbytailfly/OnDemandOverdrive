@@ -94,6 +94,8 @@ class _NewSubscriptionScreenState extends State<NewSubscriptionScreen> {
                       return SubscriptionService.getActors(term);
                     case SubscriptionType.DIRECTOR:
                       return SubscriptionService.getDirectors(term);
+                    case SubscriptionType.NEW_EPISODE:
+                      return SubscriptionService.getNewEpisodes(term);
                     default:
                       return SubscriptionService.getTitle(term);
                   }

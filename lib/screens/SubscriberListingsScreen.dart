@@ -122,21 +122,22 @@ class SubscriberListingTile extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              flex: 1,
-              child: Stack(
-                children: [
-                  Image(
-                    image: AssetImage('assets/images/placeholder-landscape.png'),
-                    fit: BoxFit.contain,
-                  ),
-                  FadeInImage(
-                    image: NetworkImage(listing.coverImage),
-                    fit: BoxFit.contain,
-                    placeholder: MemoryImage(kTransparentImage),
-                  ),
-                ],
-              ),
+            Stack(
+              children: [
+                Image(
+                  width: 120,
+                  height: 67.5,
+                  image: AssetImage('assets/images/placeholder-landscape.png'),
+                  fit: BoxFit.contain,
+                ),
+                FadeInImage(
+                  width: 120,
+                  height: 67.5,
+                  image: NetworkImage(listing.coverImage),
+                  fit: BoxFit.cover,
+                  placeholder: MemoryImage(kTransparentImage),
+                ),
+              ],
             ),
             Expanded(
               flex: 2,

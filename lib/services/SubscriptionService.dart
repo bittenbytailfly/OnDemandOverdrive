@@ -86,7 +86,18 @@ class SubscriptionService {
   }
 
   static Future<List<String>> getTitle(String term) async {
-    final response = await http.get('https://www.1024design.co.uk/api/odod/titles?term=$term');
+    final response = await http.get('https://www.1024design.co.uk/api/odod/titles/movies?term=$term');
+
+    if (response.statusCode == 200) {
+      var data = jsonDecode(response.body);
+      return data.cast<String>();
+    } else {
+      throw Exception();
+    }
+  }
+
+  static Future<List<String>> getNewEpisodes(String term) async {
+    final response = await http.get('https://www.1024design.co.uk/api/odod/titles/series?term=$term');
 
     if (response.statusCode == 200) {
       var data = jsonDecode(response.body);
