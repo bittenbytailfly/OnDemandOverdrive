@@ -33,6 +33,8 @@ class NavigationService {
   }
 
   Future<dynamic> navigateToSubscriberListingsScreen() {
+    final accountProvider = Provider.of<AccountProvider>(navigatorKey.currentContext, listen: false);
+    accountProvider.subscriberListingsState = SubscriberListingsState.Initialized;
     return navigatorKey.currentState.pushNamedAndRemoveUntil(SUBSCRIBER_LISTINGS, ModalRoute.withName(LISTINGS));
   }
 
