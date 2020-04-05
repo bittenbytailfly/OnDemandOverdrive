@@ -9,7 +9,7 @@ import 'package:ondemand_overdrive/services/SubscriptionService.dart';
 
 enum AuthState { NotSignedIn, SigningIn, SignedIn, Error }
 enum SubscriptionState { Fetching, Retrieved, Error }
-enum SubscriberListingsState { Fetching, Retrieved, Error }
+enum SubscriberListingsState { Initialized, Fetching, Retrieved, Error }
 
 class AccountProvider extends ChangeNotifier {
   final FirebaseUserService _firebaseUserService = new FirebaseUserService();
@@ -42,7 +42,7 @@ class AccountProvider extends ChangeNotifier {
     }
   }
 
-  SubscriberListingsState _subscriberListingsState = SubscriberListingsState.Fetching;
+  SubscriberListingsState _subscriberListingsState = SubscriberListingsState.Initialized;
   SubscriberListingsState get subscriberListingsState => _subscriberListingsState;
   set subscriberListingsState(SubscriberListingsState state) {
     if (this._subscriberListingsState != state) {

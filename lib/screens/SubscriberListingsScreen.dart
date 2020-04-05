@@ -1,4 +1,5 @@
 import 'package:admob_flutter/admob_flutter.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:ondemand_overdrive/models/SubscriberListing.dart';
@@ -7,6 +8,7 @@ import 'package:ondemand_overdrive/services/NavigationService.dart';
 import 'package:ondemand_overdrive/widgets/NoConnectionNotification.dart';
 import 'package:ondemand_overdrive/widgets/SubscriptionServicesSignIn.dart';
 import 'package:provider/provider.dart';
+import 'package:transparent_image/transparent_image.dart';
 import 'ListingDetailScreen.dart';
 import 'SubscriptionsScreen.dart';
 
@@ -31,6 +33,15 @@ class SubscriberListings extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<AccountProvider>(
       builder: (context, account, child) {
+
+        if (account.authState == AuthState.SignedIn && account.subscriberListingsState == SubscriberListingsState.Initialized) {
+          // User is signed in, but no listings have been loaded.
+          account.getSubscriberListings();
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+
         switch (account.subscriberListingsState){
           case SubscriberListingsState.Fetching:
             return Center(
@@ -111,13 +122,25 @@ class SubscriberListingTile extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            FadeInImage(
-              image: NetworkImage(listing.coverImage),
-              fit: BoxFit.fitWidth,
-              width: 150.0,
-              placeholder: AssetImage('assets/images/placeholder-landscape.png'),
+            Stack(
+              children: [
+                Image(
+                  width: 120,
+                  height: 67.5,
+                  image: AssetImage('assets/images/placeholder-landscape.png'),
+                  fit: BoxFit.contain,
+                ),
+                FadeInImage(
+                  width: 120,
+                  height: 67.5,
+                  image: NetworkImage(listing.coverImage),
+                  fit: BoxFit.cover,
+                  placeholder: MemoryImage(kTransparentImage),
+                ),
+              ],
             ),
             Expanded(
+              flex: 2,
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Column(
